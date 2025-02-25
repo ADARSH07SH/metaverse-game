@@ -1,0 +1,27 @@
+{
+  "name": "2d-metaverse",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@vercel/analytics": "^1.4.0",
+    "bcrypt": "^5.1.1",
+    "ejs-mate": "^4.0.0",
+    "express": "^4.21.1",
+    "mongodb": "^6.10.0",
+    "mongoose": "^8.8.2",
+    "nodemon": "^3.1.7",
+    "path": "^0.12.7",
+    
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1",
+    "vercel": "^39.1.1"
+  }
+}

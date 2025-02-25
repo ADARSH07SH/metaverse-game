@@ -1,0 +1,99 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Metaverse Office</title>
+    <link rel="stylesheet" href="css/home.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css"
+      integrity="sha512-5Hs3dF2AEPkpNAR7UiOHba+lRSJNeM2ECkwxUIxC1Q/FLycGTbNapWXB4tP889k5T5Ju8fs4b1P5z/iB4nMfSQ=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <div class="card">
+        <h3>Metaverse Office</h3>
+        <div class="userchar">
+          <i class="fa-solid fa-arrow-left" id="arrow-left"></i>
+          <img
+            src="/assets/character_logo/1.png"
+            class="profile-image"
+            id="profile-image"
+            alt="Logo"
+          />
+          <i class="fa-solid fa-arrow-right" id="arrow-right"></i>
+        </div>
+        <%= "Hello " + userName %>
+
+        <form class="create-room" action="/create-room" method="POST">
+          <div class="create-room">
+            <input
+              type="text"
+              placeholder="Room ID: (ASDF1234)"
+              name="roomId"
+            />
+            <input type="hidden" name="userName" value="<%= userName %>" />
+            <button type="submit" onclick="createRoom()">CREATE ROOM</button>
+          </div>
+        </form>
+
+        <form class="join-room" action="join-room" method="POST">
+          <div class="join-room">
+            <input
+              type="text"
+              placeholder="Room ID: (ASDF1234)"
+              name="roomId"
+            />
+            <input type="hidden" name="userName" value="<%= userName %>" />
+            <input
+              type="hidden"
+              name="sprite"
+              id="sprite-input"
+              value="1" 
+            />
+            <button type="submit" onclick="joinRoom()">JOIN ROOM</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/home.js"></script>
+
+    <script>
+      let currentImage = 1; 
+      const totalImages = 10; 
+      const profileImage = document.getElementById("profile-image");
+      const arrowLeft = document.getElementById("arrow-left");
+      const arrowRight = document.getElementById("arrow-right");
+      const spriteInput = document.getElementById("sprite-input");
+
+      // Update the profile image based on the currentImage value
+      function updateImage() {
+        profileImage.src = `/assets/character_logo/${currentImage}.png`;
+      }
+
+      // Update the hidden input field's value with the current image
+      function updateSpriteInput() {
+        spriteInput.value = currentImage; // Dynamically update the hidden input value
+      }
+
+      // Left arrow click handler
+      arrowLeft.addEventListener("click", () => {
+        currentImage = currentImage > 1 ? currentImage - 1 : totalImages; // Loop back to the last image
+        updateImage();
+        updateSpriteInput();
+      });
+
+      // Right arrow click handler
+      arrowRight.addEventListener("click", () => {
+        currentImage = currentImage < totalImages ? currentImage + 1 : 1; // Loop back to the first image
+        updateImage();
+        updateSpriteInput();
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Game Overlay</title>
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.min.js"></script>
+  <script src="https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexvirtualjoystickplugin.min.js"></script>
+  <link rel="stylesheet" href="/css/game.css" />
+</head>
+<body>
+  <div id="game-container"></div>
+  <div class="video-overlay">
+    <div class="other-video vbox">
+      <video id="other-video" autoplay muted playsinline></video>
+    </div>
+    <div class="my-video vbox">
+      <video id="my-video" autoplay playsinline></video>
+    </div>
+  </div>
+  <div class="chatbox">
+    <div class="chat">
+      <input type="text" id="player-chat" name="playerChat">
+      <button type="submit" class="player-chat-submit">Send</button>
+    </div>
+    <div id="chat-messages"></div>
+  </div>
+  <button id="showButton">Click Me</button>
+  <div id="version"></div>
+  <div id="gamedata" data-room-id="<%= roomId %>" data-user-id="<%= userId %>"></div>
+
+ 
+
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/game.js"></script>
+  <script src="/js/game1.js"></script>
+  <script src="/js/game-socket.js"></script>
+  <script src="/js/webrtc.js"></script>
+
+  
+  <script>
+    let roomId = "<%= roomId %>";
+    let userId = "<%= userId %>";
+    let spriteNum = "<%= sprite %>"; 
+    
+    
+    console.log("Player name:", userId);
+    console.log("Joined room:", roomId);
+    
+    socket.emit("player position");
+    socket.on("connect", () => {
+      console.log("Socket ID:", socket.id);
+    });
+    socket.on("message", (data) => {
+      console.log("Message from server:", data);
+    });
+  </script>
+</body>
+</html>
