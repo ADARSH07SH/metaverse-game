@@ -69,7 +69,7 @@ function create() {
 
   player = this.physics.add
     .sprite(3500, 2000, "dude")
-    .setScale(5)
+    .setScale(5.5)
     .setCollideWorldBounds(true);
   this.physics.add.collider(player, wallLayer);
 
@@ -108,7 +108,7 @@ function create() {
   });
 
   const camera = this.cameras.main;
-  camera.startFollow(player).setZoom(0.55);
+  camera.startFollow(player).setZoom(0.4);
   camera.setBounds(0, 0, wallMap.widthInPixels, wallMap.heightInPixels);
   this.physics.world.setBounds(
     0,
@@ -134,37 +134,97 @@ function create() {
     joystick.thumb.setVisible(joystickToogle);
   });
 
+
+  this.input.on("pointerdown", (pointer) => {
+    this.startX = pointer.x;
+    this.startY = pointer.y;
+  });
+
+  this.input.on("pointerup", (pointer) => {
+    let deltaX = pointer.x - this.startX;
+    let deltaY = pointer.y - this.startY;
+
+    let absDeltaX = Math.abs(deltaX);
+    let absDeltaY = Math.abs(deltaY);
+
+    if (absDeltaX > absDeltaY) {
+      if (deltaX > 50) {
+        player.setVelocityX(960); // Swipe Right
+        player.anims.play("right", true);
+      } else if (deltaX < -50) {
+        player.setVelocityX(-960); // Swipe Left
+        player.anims.play("left", true);
+      }
+    } else {
+      if (deltaY > 50) {
+        player.setVelocityY(960); // Swipe Down
+        player.anims.play("down", true);
+      } else if (deltaY < -50) {
+        player.setVelocityY(-960); // Swipe Up
+        player.anims.play("up", true);
+      }
+    }
+
+    setTimeout(() => {
+      player.setVelocity(0); // Stop movement after some time
+      player.anims.stop();
+    }, 300);
+  });
+
+let lastDistance = 0;
+
+this.input.on("pointermove", (pointer) => {
+  if (pointer.pointerType === "touch" && pointer.pointers.length === 2) {
+    let touch1 = pointer.pointers[0];
+    let touch2 = pointer.pointers[1];
+
+    let distance = Phaser.Math.Distance.Between(
+      touch1.x,
+      touch1.y,
+      touch2.x,
+      touch2.y
+    );
+
+    if (lastDistance !== 0) {
+      let zoomChange = (distance - lastDistance) * 0.002; // Adjust sensitivity
+      let newZoom = this.cameras.main.zoom + zoomChange;
+      this.cameras.main.setZoom(Phaser.Math.Clamp(newZoom, 0.4, 1.2));
+    }
+
+    lastDistance = distance;
+  }
+});
+
+this.input.on("pointerup", () => {
+  lastDistance = 0;
+});
+
+
   cursors = this.input.keyboard.createCursorKeys();
 
   this.input.on("wheel", (_, __, ___, deltaY) => {
-    const zoom = camera.zoom - deltaY * 0.003;
-    camera.setZoom(Phaser.Math.Clamp(zoom, 0.4, 1.5));
+    const zoom = camera.zoom - deltaY * 0.001;
+    camera.setZoom(Phaser.Math.Clamp(zoom, 0.4, 1.2));
   });
 
 socket.on("updatePosition", (data) => {
   if (data.id !== socket.id) {
-    // If this player hasn't been created yet
     if (!otherPlayers[data.id]) {
-      // Create the sprite for the other player
       const otherSprite = this.physics.add
         .sprite(data.x, data.y, "dude")
-        .setScale(5)
+        .setScale(5.5)
         .setCollideWorldBounds(true);
 
-      // Set up animations for the other player
       createPlayerAnimation.call(this, otherSprite, data.spriteNum);
-
-      // Prevent other players from being pushed
       otherSprite.setImmovable(true);
 
-      // Create a background for the name label (a message box shape)
-      const nameBackground = this.add.graphics();
-      nameBackground.fillStyle(0x000000, 0.5); // semi-transparent black
-      // Adjust these values as needed to fit your text size
+      
+      // ✅ Create name label for the other player
+      let nameBackground = this.add.graphics();
+      nameBackground.fillStyle(0x000000, 0.5);
       nameBackground.fillRoundedRect(-50, -20, 100, 30, 10);
 
-      // Create the text for the player's name
-      const nameText = this.add
+      let nameText = this.add
         .text(0, -10, data.playerName, {
           fontSize: "18px",
           fill: "#fff",
@@ -172,19 +232,30 @@ socket.on("updatePosition", (data) => {
         })
         .setOrigin(0.5);
 
-      // Create a container that holds both the background and the text
-      otherSprite.nameLabel = this.add.container(data.x, data.y - 60, [
-        nameBackground,
-        nameText,
-      ]);
+      let nameLabelContainer = this.add.container(
+        otherSprite.x,
+        otherSprite.y - 60,
+        [nameBackground, nameText]
+      );
 
-      // Add a collider if needed
-      this.physics.add.collider(player, otherSprite);
+      // Store the label in the player object
+      otherSprite.nameLabel = nameLabelContainer;
 
-      // Store the sprite in our otherPlayers object
+      // Add to game scene
+      this.add.existing(nameLabelContainer);
+
+      // **Add to otherPlayers object**
       otherPlayers[data.id] = otherSprite;
+
+      Object.values(otherPlayers).forEach((existingPlayer) => {
+        this.physics.add.collider(otherSprite, existingPlayer);
+      });
+
+      this.physics.add.collider(player, otherSprite);
+      otherPlayers[data.id] = otherSprite;
+
     } else {
-      // Tween the sprite to the new position
+      // ✅ Update name label position when player moves
       this.tweens.add({
         targets: otherPlayers[data.id],
         x: data.x,
@@ -192,7 +263,6 @@ socket.on("updatePosition", (data) => {
         duration: 100,
         ease: "Linear",
         onUpdate: () => {
-          // Update the position of the name label so it stays above the sprite
           if (otherPlayers[data.id].nameLabel) {
             otherPlayers[data.id].nameLabel.setPosition(
               otherPlayers[data.id].x,
@@ -203,22 +273,21 @@ socket.on("updatePosition", (data) => {
       });
     }
 
-    // Update animation based on movement direction
     updatePlayerAnimation.call(this, otherPlayers[data.id], data.x, data.y);
-
-    console.log(
-      `Player ID: ${data.id}, Sprite Num: ${data.spriteNum}, Player Name: ${data.playerName}`
-    );
   }
 });
 
 
-  socket.on("playerDisconnected", (id) => {
-    if (otherPlayers[id]) {
-      otherPlayers[id].destroy();
-      delete otherPlayers[id];
+socket.on("playerDisconnected", (id) => {
+  if (otherPlayers[id]) {
+    if (otherPlayers[id].nameLabel) {
+      otherPlayers[id].nameLabel.destroy(); // Destroy the label
     }
-  });
+    otherPlayers[id].destroy(); // Destroy player sprite
+    delete otherPlayers[id]; // Remove from object
+  }
+});
+
 
   // Animations for the local character
   createPlayerAnimation.call(this, player, spriteNum);
@@ -356,6 +425,9 @@ function update(time) {
 
   Object.keys(otherPlayers).forEach((id) => {
     let other = otherPlayers[id];
+    if (other.nameLabel) {
+      other.nameLabel.setPosition(other.x, other.y - 60);
+    }
     let distance = Phaser.Math.Distance.Between(
       player.x,
       player.y,

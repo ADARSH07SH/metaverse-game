@@ -1,60 +1,162 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Game Overlay</title>
-  <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.min.js"></script>
-  <script src="https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexvirtualjoystickplugin.min.js"></script>
-  <link rel="stylesheet" href="/css/game.css" />
-</head>
-<body>
-  <div id="game-container"></div>
-  <div class="video-overlay">
-    <div class="other-video vbox">
-      <video id="other-video" autoplay muted playsinline></video>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Game Overlay</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+    <link rel="stylesheet" href="/css/game.css" />
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.min.js"></script>
+    <script src="https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexvirtualjoystickplugin.min.js"></script>
+  </head>
+  <body>
+    <div id="game-container"></div>
+
+    <!-- Video Overlay -->
+    <div class="video-overlay">
+      <div class="other-video vbox">
+        <video id="other-video" autoplay muted playsinline></video>
+      </div>
+      <div class="my-video vbox">
+        <video id="my-video" autoplay playsinline></video>
+      </div>
     </div>
-    <div class="my-video vbox">
-      <video id="my-video" autoplay playsinline></video>
+
+    <!-- Chatbox -->
+    <div class="chatbox">
+      <div class="chat">
+        <input type="text" id="player-chat" name="playerChat" />
+        <button type="submit" class="player-chat-submit">Send</button>
+      </div>
+      <div id="chat-messages"></div>
     </div>
-  </div>
-  <div class="chatbox">
-    <div class="chat">
-      <input type="text" id="player-chat" name="playerChat">
-      <button type="submit" class="player-chat-submit">Send</button>
-    </div>
-    <div id="chat-messages"></div>
-  </div>
-  <button id="showButton">Click Me</button>
-  <div id="version"></div>
-  <div id="gamedata" data-room-id="<%= roomId %>" data-user-id="<%= userId %>"></div>
 
- 
+    <div id="version"></div>
 
+    <div
+      id="gamedata"
+      data-room-id="<%= roomId %>"
+      data-user-id="<%= userId %>"
+    ></div>
 
-  <script src="/socket.io/socket.io.js"></script>
-  <script src="/js/game.js"></script>
-  <script src="/js/game1.js"></script>
-  <script src="/js/game-socket.js"></script>
-  <script src="/js/webrtc.js"></script>
+    <!-- Hidden Button for Game.js -->
+    <button id="showButton" style="display: none"></button>
 
-  
-  <script>
-    let roomId = "<%= roomId %>";
-    let userId = "<%= userId %>";
-    let spriteNum = "<%= sprite %>"; 
-    
-    
-    console.log("Player name:", userId);
-    console.log("Joined room:", roomId);
-    
-    socket.emit("player position");
-    socket.on("connect", () => {
-      console.log("Socket ID:", socket.id);
-    });
-    socket.on("message", (data) => {
-      console.log("Message from server:", data);
-    });
-  </script>
-</body>
+    <!-- Footer -->
+    <footer>
+      <div class="acc">
+        <!-- Left Side: Time and User Info -->
+        <div class="myinfo">
+          <h4 id="timeDisplay"></h4>
+          <h4>| <%= userId %></h4>
+        </div>
+        <!-- Center: Main Buttons -->
+        <div class="accbutton">
+          <div class="microphone">
+            <i class="fa-solid fa-microphone"></i>
+            <i class="fa-solid fa-microphone-slash"></i>
+          </div>
+          <div class="videobtn">
+            <i class="fa-solid fa-video"></i>
+            <i class="fa-solid fa-video-slash"></i>
+          </div>
+          <div class="reaction">
+            <i class="fa-solid fa-heart"></i>
+          </div>
+          <div class="endcall">
+            <a id="callEndLink">
+              <i
+                class="fa-solid fa-phone fa-rotate-by"
+                style="--fa-rotate-angle: 135deg"
+              ></i>
+            </a>
+          </div>
+        </div>
+        <!-- Right Side: Other Controls -->
+        <div class="right-controls">
+          <div class="chat">
+            <i class="fa-regular fa-message"></i>
+          </div>
+          <div class="gamepad">
+            <i class="fa-solid fa-gamepad"></i>
+          </div>
+          <div class="info">
+            <i class="fa-solid fa-info"></i>
+          </div>
+          <div class="people">
+            <i class="fa-solid fa-users"></i>
+          </div>
+          <div class="othercontrols">
+            <i class="fa-solid fa-ellipsis-vertical"></i>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/game.js"></script>
+    <script src="/js/game1.js"></script>
+    <script src="/js/game-socket.js"></script>
+    <script src="/js/webrtc.js"></script>
+    <script>
+      let roomId = "<%= roomId %>";
+      let userId = "<%= userId %>";
+      let spriteNum = "<%= sprite %>";
+
+      console.log("Player name:", userId);
+      console.log("Joined room:", roomId);
+
+      socket.emit("player position");
+      socket.on("connect", () => {
+        console.log("Socket ID:", socket.id);
+      });
+      socket.on("message", (data) => {
+        console.log("Message from server:", data);
+      });
+
+      function updateTime() {
+        const now = new Date();
+        const hours = now.getHours().toString().padStart(2, "0");
+        const minutes = now.getMinutes().toString().padStart(2, "0");
+        document.getElementById(
+          "timeDisplay"
+        ).innerText = `${hours}:${minutes}`;
+      }
+      updateTime();
+      setInterval(updateTime, 1000);
+
+      document.addEventListener("DOMContentLoaded", function () {
+        const micButton = document.querySelector(".microphone");
+        const videoButton = document.querySelector(".videobtn");
+        const endcall = document.querySelector(".endcall");
+        endcall.addEventListener("click", function () {
+          closeGame();
+        });
+        micButton.addEventListener("click", function () {
+          micButton.classList.toggle("muted");
+        });
+        videoButton.addEventListener("click", function () {
+          videoButton.classList.toggle("video-off");
+        });
+      });
+
+      document.querySelector(".chat i").addEventListener("click", function () {
+        document.querySelector(".chatbox").classList.toggle("hidden");
+      });
+
+      document
+        .querySelector(".gamepad i")
+        .addEventListener("click", function () {
+          document.getElementById("showButton").click();
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+    const userId = "<%= userId %>"; // Get userId from template
+    document.getElementById("callEndLink").href = `/joinroom?userName=${encodeURIComponent(userId)}`;
+  });
+    </script>
+  </body>
 </html>

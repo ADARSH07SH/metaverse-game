@@ -9,7 +9,7 @@ socket.on("player-chat", (data) => {
   // Display the received message
   const messageDiv = document.createElement("div");
   messageDiv.classList.add("chat-message");
-  messageDiv.innerHTML = `<strong>${userId}</strong>: ${data.message}`;
+  messageDiv.innerHTML = `<strong>${data.userId}</strong>: ${data.message}`;
   document.getElementById("chat-messages").appendChild(messageDiv);
 });
 
