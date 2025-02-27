@@ -25,7 +25,6 @@ const setupControls = () => {
     const audioTracks = localStream.getAudioTracks();
     if (audioTracks.length > 0) {
       audioTracks[0].enabled = !audioTracks[0].enabled;
-      
     }
   });
   videoButton.addEventListener("click", function () {
@@ -33,7 +32,6 @@ const setupControls = () => {
     const videoTracks = localStream.getVideoTracks();
     if (videoTracks.length > 0) {
       videoTracks[0].enabled = !videoTracks[0].enabled;
-      
     }
   });
 };

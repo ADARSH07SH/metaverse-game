@@ -34,6 +34,12 @@
       <div id="chat-messages"></div>
     </div>
 
+    <!-- Players List -->
+    <div class="players-list hidden">
+      <h3>LIVE PEOPLE</h3>
+      <ul id="players-ul"></ul>
+    </div>
+
     <div id="version"></div>
 
     <div
@@ -143,6 +149,43 @@
         });
       });
 
+      const playersList = document.querySelector(".players-list");
+const playersUl = document.getElementById("players-ul");
+const people = document.querySelector(".people");
+
+people.addEventListener("click", async function () {
+  playersList.classList.toggle("hidden");
+
+  // Fetch players only when list is opened
+  if (!playersList.classList.contains("hidden")) {
+    await fetchActivePlayers();
+  }
+});
+
+// Fetch active players from the server
+async function fetchActivePlayers() {
+  try {
+    const roomId = "<%= roomId %>";
+    const response = await fetch(`/api/get-players?roomId=${roomId}`);
+    const players = await response.json();
+
+    playersUl.innerHTML = ""; // Clear list before updating
+
+    players
+      .filter(player => player.active === 1) // Only show active players
+      .forEach(player => {
+        const li = document.createElement("li");
+        li.textContent = player.userName;
+        li.classList.add("active-player");
+        playersUl.appendChild(li);
+      });
+
+  } catch (error) {
+    console.error("Error fetching players:", error);
+  }
+}
+
+
       document.querySelector(".chat i").addEventListener("click", function () {
         document.querySelector(".chatbox").classList.toggle("hidden");
       });
@@ -153,10 +196,17 @@
           document.getElementById("showButton").click();
         });
 
-        document.addEventListener("DOMContentLoaded", function () {
-    const userId = "<%= userId %>"; // Get userId from template
-    document.getElementById("callEndLink").href = `/joinroom?userName=${encodeURIComponent(userId)}`;
-  });
+      document.addEventListener("DOMContentLoaded", function () {
+        const userId = "<%= userId %>"; // Get userId from template
+        document.getElementById(
+          "callEndLink"
+        ).href = `/joinroom?userName=${encodeURIComponent(userId)}`;
+      });
+
+      window.addEventListener("beforeunload", () => {
+  socket.emit("main-disconnect");
+});
+
     </script>
   </body>
 </html>

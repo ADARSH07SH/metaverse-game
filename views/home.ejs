@@ -28,17 +28,15 @@
         </div>
         <%= "Hello " + userName %>
 
-        <form class="create-room" action="/create-room" method="POST">
-          <div class="create-room">
-            <input
-              type="text"
-              placeholder="Room ID: (ASDF1234)"
-              name="roomId"
-            />
-            <input type="hidden" name="userName" value="<%= userName %>" />
-            <button type="submit" onclick="createRoom()">CREATE ROOM</button>
-          </div>
-        </form>
+        <form class="create-room" action="create-room" method="POST">
+  <div class="create-room">
+    <input type="text" placeholder="Room ID: (ASDF1234)" name="roomId" />
+    <input type="hidden" name="userName" value="<%= userName %>" />
+    <input type="hidden" name="sprite" id="sprite-input" value="1" />
+    <button type="submit" onclick="createRoom()">CREATE ROOM</button>
+  </div>
+</form>
+
 
         <form class="join-room" action="join-room" method="POST">
           <div class="join-room">
