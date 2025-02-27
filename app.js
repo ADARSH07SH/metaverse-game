@@ -99,8 +99,11 @@ io.on("connection", (socket) => {
 
   // Chat event
   socket.on("player-chat", async (data) => {
+     const { roomId, socketId, message, userId } = data;
     console.log(`Chat from ${data.userId}: ${data.message}`);
     io.to(data.roomId).emit("player-chat", data);
+     socket.emit("player-chat", data); // Send to the sender
+     socket.broadcast.emit("player-chat", data);
     await saveChatMessage(data.roomId, socket.id, data.message, data.userId);
   });
 

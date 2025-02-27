@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="/css/game.css" />
     <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.min.js"></script>
     <script src="https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexvirtualjoystickplugin.min.js"></script>
+   
   </head>
   <body>
     <div id="game-container"></div>
@@ -69,8 +70,18 @@
             <i class="fa-solid fa-video"></i>
             <i class="fa-solid fa-video-slash"></i>
           </div>
+          <!-- Reaction area -->
           <div class="reaction">
-            <i class="fa-solid fa-heart"></i>
+            <i class="fa-regular fa-hand" id="reaction-icon"></i>
+            <!-- Emoji bar hidden by default; appears on hover -->
+            <div class="emoji-bar">
+              <span class="emoji" data-emoji="✋">✋</span>
+              <span class="emoji" data-emoji="❤️">❤️</span>
+              <span class="emoji" data-emoji="😂">😂</span>
+              <span class="emoji" data-emoji="😭">😭</span>
+              <span class="emoji" data-emoji="🤝">🤝</span>
+              <span class="emoji" data-emoji="🙏">🙏</span>
+            </div>
           </div>
           <div class="endcall">
             <a id="callEndLink">
@@ -127,9 +138,7 @@
         const now = new Date();
         const hours = now.getHours().toString().padStart(2, "0");
         const minutes = now.getMinutes().toString().padStart(2, "0");
-        document.getElementById(
-          "timeDisplay"
-        ).innerText = `${hours}:${minutes}`;
+        document.getElementById("timeDisplay").innerText = `${hours}:${minutes}`;
       }
       updateTime();
       setInterval(updateTime, 1000);
@@ -150,63 +159,65 @@
       });
 
       const playersList = document.querySelector(".players-list");
-const playersUl = document.getElementById("players-ul");
-const people = document.querySelector(".people");
+      const playersUl = document.getElementById("players-ul");
+      const people = document.querySelector(".people");
 
-people.addEventListener("click", async function () {
-  playersList.classList.toggle("hidden");
-
-  // Fetch players only when list is opened
-  if (!playersList.classList.contains("hidden")) {
-    await fetchActivePlayers();
-  }
-});
-
-// Fetch active players from the server
-async function fetchActivePlayers() {
-  try {
-    const roomId = "<%= roomId %>";
-    const response = await fetch(`/api/get-players?roomId=${roomId}`);
-    const players = await response.json();
-
-    playersUl.innerHTML = ""; // Clear list before updating
-
-    players
-      .filter(player => player.active === 1) // Only show active players
-      .forEach(player => {
-        const li = document.createElement("li");
-        li.textContent = player.userName;
-        li.classList.add("active-player");
-        playersUl.appendChild(li);
+      people.addEventListener("click", async function () {
+        playersList.classList.toggle("hidden");
+        if (!playersList.classList.contains("hidden")) {
+          await fetchActivePlayers();
+        }
       });
 
-  } catch (error) {
-    console.error("Error fetching players:", error);
-  }
-}
-
+      async function fetchActivePlayers() {
+        try {
+          const response = await fetch(`/api/get-players?roomId=${roomId}`);
+          const players = await response.json();
+          playersUl.innerHTML = "";
+          players
+            .filter(player => player.active === 1)
+            .forEach(player => {
+              const li = document.createElement("li");
+              li.textContent = player.userName;
+              li.classList.add("active-player");
+              playersUl.appendChild(li);
+            });
+        } catch (error) {
+          console.error("Error fetching players:", error);
+        }
+      }
 
       document.querySelector(".chat i").addEventListener("click", function () {
         document.querySelector(".chatbox").classList.toggle("hidden");
       });
 
-      document
-        .querySelector(".gamepad i")
-        .addEventListener("click", function () {
-          document.getElementById("showButton").click();
-        });
+      document.querySelector(".gamepad i").addEventListener("click", function () {
+        document.getElementById("showButton").click();
+      });
 
       document.addEventListener("DOMContentLoaded", function () {
-        const userId = "<%= userId %>"; // Get userId from template
-        document.getElementById(
-          "callEndLink"
-        ).href = `/joinroom?userName=${encodeURIComponent(userId)}`;
+        document.getElementById("callEndLink").href = `/joinroom?userName=${encodeURIComponent(userId)}`;
       });
 
       window.addEventListener("beforeunload", () => {
-  socket.emit("main-disconnect");
-});
+        socket.emit("main-disconnect");
+      });
 
+      // Attach event listeners to emoji buttons
+      document.addEventListener("DOMContentLoaded", function () {
+        const emojis = document.querySelectorAll(".emoji");
+        emojis.forEach((emojiEl) => {
+          emojiEl.addEventListener("click", () => {
+            const selectedEmoji = emojiEl.getAttribute("data-emoji");
+            socket.emit("player-chat", {
+              roomId,
+              socketId: socket.id,
+              message: `${userId} reacted: ${selectedEmoji}`,
+              userId,
+            });
+          });
+        });
+      });
     </script>
   </body>
 </html>

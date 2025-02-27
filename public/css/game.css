@@ -53,7 +53,7 @@ body {
 /* Chatbox */
 .chatbox {
   position: absolute;
-  bottom: 90px;
+  bottom: 110px;
   left: 10px;
   width: 20%;
   height: 35%;
@@ -94,7 +94,7 @@ body {
 }
 .chat input {
   width: 90%;
-  height: 75%;
+  height: 55%;
   font-size: 12px;
   padding: 6px;
   border-radius: 5px;
@@ -111,8 +111,8 @@ body {
   transition: background 0.2s;
   border-radius: 5px;
 
-  width: 90%;
-  height: 35px;
+  width: 65%;
+  height: 105%;
   font-size: 12px;
   padding: 6px;
   border-radius: 5px;
@@ -134,7 +134,7 @@ body {
   word-wrap: break-word;
 }
 .chat-message:last-child {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(222, 227, 85, 0.2);
 }
 .chat-message strong {
   color: #ffcc00;
@@ -388,14 +388,14 @@ footer {
 /* Players List */
 .players-list {
   position: absolute;
-  bottom: 90px;
+  bottom: 110px;
   left: 80%;
-  width: 10%;
+  width: 15%;
   height: auto;
-  max-height: 35%;
-  background-color: rgba(0, 0, 0, 0.85);
-  color: white;
-  padding: 15px;
+  
+  /* background-color: rgba(0, 0, 0, 0.85); */
+  color: rgb(37, 41, 4);
+  /* padding: 5px; */
   border-radius: 12px;
   display: flex;
   flex-direction: column;
@@ -419,12 +419,12 @@ footer {
 
 .players-list li {
   padding: 8px;
-  border-bottom: 1px solid white;
+  border-bottom: 1px solid rgb(5, 34, 67);
   text-align: center;
 }
 
 .active-player {
-  color: lightgreen;
+  color: black;
   font-weight: bold;
 }
 
@@ -446,4 +446,41 @@ footer {
     max-height: 50%;
     font-size: 14px;
   }
+}
+
+/* Reaction and Emoji Bar Styles */
+.reaction {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+.emoji-bar {
+  height: 90% !important;
+  width: 600% !important;
+  position: absolute;
+  bottom: 100% !important; /* Position above the hand icon */
+  left: 50%;
+  transform: translateX(-50%);
+   display: none !important;
+  background: rgba(0, 0, 0, 0.8);
+  padding: 5px;
+  border-radius: 5px !important;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+.reaction:hover .emoji-bar {
+  display: flex !important;
+}
+.reaction:hover .emoji {
+  display: flex;
+}
+.emoji {
+  font-size: 24px;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+  display: none;
+}
+.emoji:hover {
+  transform: scale(1.5);
 }

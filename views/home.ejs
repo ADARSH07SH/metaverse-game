@@ -28,33 +28,28 @@
         </div>
         <%= "Hello " + userName %>
 
-        <form class="create-room" action="create-room" method="POST">
+        <!-- Create Room Form -->
+<form class="create-room" action="create-room" method="POST">
   <div class="create-room">
     <input type="text" placeholder="Room ID: (ASDF1234)" name="roomId" />
     <input type="hidden" name="userName" value="<%= userName %>" />
-    <input type="hidden" name="sprite" id="sprite-input" value="1" />
+    <!-- Unique id for create room -->
+    <input type="hidden" name="sprite" id="sprite-input-create" value="1" />
     <button type="submit" onclick="createRoom()">CREATE ROOM</button>
   </div>
 </form>
 
+<!-- Join Room Form -->
+<form class="join-room" action="join-room" method="POST">
+  <div class="join-room">
+    <input type="text" placeholder="Room ID: (ASDF1234)" name="roomId" />
+    <input type="hidden" name="userName" value="<%= userName %>" />
+    <!-- Unique id for join room -->
+    <input type="hidden" name="sprite" id="sprite-input-join" value="1" />
+    <button type="submit" onclick="joinRoom()">JOIN ROOM</button>
+  </div>
+</form>
 
-        <form class="join-room" action="join-room" method="POST">
-          <div class="join-room">
-            <input
-              type="text"
-              placeholder="Room ID: (ASDF1234)"
-              name="roomId"
-            />
-            <input type="hidden" name="userName" value="<%= userName %>" />
-            <input
-              type="hidden"
-              name="sprite"
-              id="sprite-input"
-              value="1" 
-            />
-            <button type="submit" onclick="joinRoom()">JOIN ROOM</button>
-          </div>
-        </form>
       </div>
     </div>
 
@@ -62,36 +57,44 @@
     <script src="/js/home.js"></script>
 
     <script>
-      let currentImage = 1; 
-      const totalImages = 10; 
-      const profileImage = document.getElementById("profile-image");
-      const arrowLeft = document.getElementById("arrow-left");
-      const arrowRight = document.getElementById("arrow-right");
-      const spriteInput = document.getElementById("sprite-input");
+     let currentImage = 1;
+const totalImages = 10;
+const profileImage = document.getElementById("profile-image");
+const arrowLeft = document.getElementById("arrow-left");
+const arrowRight = document.getElementById("arrow-right");
 
-      // Update the profile image based on the currentImage value
-      function updateImage() {
-        profileImage.src = `/assets/character_logo/${currentImage}.png`;
-      }
+// Get both hidden inputs
+const spriteInputCreate = document.getElementById("sprite-input-create");
+const spriteInputJoin = document.getElementById("sprite-input-join");
 
-      // Update the hidden input field's value with the current image
-      function updateSpriteInput() {
-        spriteInput.value = currentImage; // Dynamically update the hidden input value
-      }
+function updateImage() {
+  profileImage.src = `/assets/character_logo/${currentImage}.png`;
+}
 
-      // Left arrow click handler
-      arrowLeft.addEventListener("click", () => {
-        currentImage = currentImage > 1 ? currentImage - 1 : totalImages; // Loop back to the last image
-        updateImage();
-        updateSpriteInput();
-      });
+function updateSpriteInputs() {
+  // Update both hidden inputs
+  if(spriteInputCreate) {
+    spriteInputCreate.value = currentImage;
+    spriteInputCreate.setAttribute("value", currentImage);
+  }
+  if(spriteInputJoin) {
+    spriteInputJoin.value = currentImage;
+    spriteInputJoin.setAttribute("value", currentImage);
+  }
+}
 
-      // Right arrow click handler
-      arrowRight.addEventListener("click", () => {
-        currentImage = currentImage < totalImages ? currentImage + 1 : 1; // Loop back to the first image
-        updateImage();
-        updateSpriteInput();
-      });
+arrowLeft.addEventListener("click", () => {
+  currentImage = currentImage > 1 ? currentImage - 1 : totalImages;
+  updateImage();
+  updateSpriteInputs();
+});
+
+arrowRight.addEventListener("click", () => {
+  currentImage = currentImage < totalImages ? currentImage + 1 : 1;
+  updateImage();
+  updateSpriteInputs();
+});
+
     </script>
   </body>
 </html>

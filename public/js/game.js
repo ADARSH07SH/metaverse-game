@@ -98,7 +98,7 @@ function create() {
 
   // Joystick setup
   joystick = this.plugins.get("rexvirtualjoystickplugin").add(this, {
-    x: 1680,
+    x: 2000,
     y: this.cameras.main.height + 100,
     radius: 80,
     base: this.add.circle(0, 0, 70, 0x888888),
