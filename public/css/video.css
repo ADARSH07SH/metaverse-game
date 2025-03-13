@@ -1,0 +1,104 @@
+/* Overlay container occupies 85% of the viewport */
+.overlay-container {
+  position: fixed;
+  top: 7.5vh;  /* roughly centered vertically */
+  left: 7.5vw; /* roughly centered horizontally */
+  width: 85vw;
+  height: 75vh;
+  z-index: 1000;
+  padding: 5px;   /* reduced padding for tighter spacing */
+  overflow: auto;
+}
+
+/* Video grid settings */
+.video-grid {
+  display: grid;
+  gap: 4px 8px; /* row gap 4px, column gap 8px */
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  width: 100%;
+  height: auto;
+  align-content: start;
+}
+
+/* Video container maintains a 16:9 aspect ratio */
+.video-container {
+  background-color: #2c2c2c;
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  aspect-ratio: 16 / 9;
+}
+
+.video-container::before {
+  content: "";
+  display: block;
+  padding-top: 56.25%;
+}
+
+.video-content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Fallback initial styling */
+.user-initial {
+  width: 50px; /* Adjust size as needed */
+  height: 50px;
+  border-radius: 50%;
+  font-size: 22px; /* Increase font size for visibility */
+  font-weight: bold;
+  color: white;
+  text-transform: uppercase;
+}
+
+/* User name overlay */
+.user-name {
+  position: absolute;
+  bottom: 5px;
+  left: 5px;
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+  color: white;
+}
+
+/* For larger displays, allow items to scale larger */
+@media (min-width: 1024px) {
+  .video-grid {
+    gap: 4px 8px;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+  .overlay-container {
+    height: 70%;
+    width: 60%;
+  }
+}
+.meet-type {
+  width: 50px;       /* Adjust size as needed */
+  height: 50px;
+  border-radius: 50%;
+  font-size: 22px;   /* Adjust font size as desired */
+  font-weight: bold;
+  color: white;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.participant-initial {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  font-size: 22px;
+  font-weight: bold;
+  color: white;
+  text-transform: uppercase;
+}

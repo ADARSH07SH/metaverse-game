@@ -9,6 +9,7 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
     />
     <link rel="stylesheet" href="/css/game.css" />
+    <link rel="stylesheet" href="/css/video.css" />
     <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.min.js"></script>
     <script src="https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexvirtualjoystickplugin.min.js"></script>
    
@@ -17,13 +18,17 @@
     <div id="game-container"></div>
 
     <!-- Video Overlay -->
-    <div class="video-overlay">
+    <div class="video-overlay" style="display: block;">
       <div class="other-video vbox">
         <video id="other-video" autoplay muted playsinline></video>
       </div>
       <div class="my-video vbox">
         <video id="my-video" autoplay playsinline></video>
       </div>
+    </div>
+
+    <div class="overlay-container " style="display: none;">
+        <div id="videoGrid" class="video-grid"></div>
     </div>
 
     <!-- Chatbox -->
@@ -101,7 +106,7 @@
             <i class="fa-solid fa-gamepad"></i>
           </div>
           <div class="info">
-            <i class="fa-solid fa-info"></i>
+            <i class="fa-solid fa-expand"></i>
           </div>
           <div class="people">
             <i class="fa-solid fa-users"></i>
@@ -117,6 +122,7 @@
     <script src="/js/game.js"></script>
     <script src="/js/game1.js"></script>
     <script src="/js/game-socket.js"></script>
+    <script src="/js/conference.js"></script>
     <script src="/js/webrtc.js"></script>
     <script>
       let roomId = "<%= roomId %>";
@@ -190,6 +196,7 @@
       document.querySelector(".chat i").addEventListener("click", function () {
         document.querySelector(".chatbox").classList.toggle("hidden");
       });
+     
 
       document.querySelector(".gamepad i").addEventListener("click", function () {
         document.getElementById("showButton").click();
@@ -218,6 +225,33 @@
           });
         });
       });
+
+      window.addEventListener("beforeunload", () => {
+  // Emit exitConference event so that others know this user left the conference
+  socket.emit("exitConference", {
+    roomId: roomId,  // your current room ID variable
+    id: socket.id,
+    userId: userId   // your current user ID variable
+  });
+  // Also emit your main-disconnect event if needed
+  socket.emit("main-disconnect");
+});
+
+document.querySelector(".info i").addEventListener("click", function () {
+  // Get the two containers
+  const overlayContainer = document.querySelector(".overlay-container");
+  const videoOverlay = document.querySelector(".video-overlay");
+
+  // Toggle them based on their current state:
+  if (overlayContainer.style.display === "block") {
+    overlayContainer.style.display = "none";
+    videoOverlay.style.display = "block";
+  } else {
+    overlayContainer.style.display = "block";
+    videoOverlay.style.display = "none";
+  }
+});
+
     </script>
   </body>
 </html>

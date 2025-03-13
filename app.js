@@ -10,6 +10,7 @@ const {
   getUserDetailsCollection,
   getRoomDetailsCollection,
   playerChat,
+  getConferenceParticipants,
 } = require("./public/js/mongodb");
 
 const app = express();
@@ -34,6 +35,7 @@ inject();
 
 // In-memory object to track player positions and info
 const players = {};
+
 
 // -------------------
 // SOCKET.IO EVENTS
@@ -97,6 +99,7 @@ io.on("connection", (socket) => {
       .emit("icecandidate", { from: socket.id, candidate: data.candidate });
   });
 
+  
   // Chat event
   socket.on("player-chat", async (data) => {
      const { roomId, socketId, message, userId } = data;
@@ -107,28 +110,161 @@ io.on("connection", (socket) => {
     await saveChatMessage(data.roomId, socket.id, data.message, data.userId);
   });
 
-  // Helper function to mark a player as inactive on disconnect
-  const handleDisconnect = async () => {
-    console.log(`Socket disconnected: ${socket.id}`);
-    const player = players[socket.id];
-    if (player && player.playerName) {
-      try {
-        const roomCollection = await getRoomDetailsCollection();
+socket.on("enterLobby", async (data) => {
+  // data should include: { roomId, id (socket.id), userId (username) }
+  console.log(
+    `Player ${data.userId} entered the lobby for room ${data.roomId}`
+  );
+  try {
+    const roomCollection = await getRoomDetailsCollection();
+    const roomDoc = await roomCollection.findOne({ roomId: data.roomId });
+    if (roomDoc) {
+      // Check if the user is already present in the players array.
+      const existing = roomDoc.players.find((p) => p.userName === data.userId);
+      if (!existing) {
+        // User is not in the room; add them.
         await roomCollection.updateOne(
-          { "players.userName": player.playerName },
-          { $set: { "players.$.active": 0 } }
+          { roomId: data.roomId },
+          { $push: { players: { userName: data.userId, active: 1 } } }
         );
-        console.log(`Marked ${player.playerName} as inactive.`);
-      } catch (err) {
-        console.error("Error updating player status on disconnect:", err);
+        console.log(`Added ${data.userId} to room ${data.roomId} (via lobby).`);
+      } else {
+        // User already exists; update to active.
+        await roomCollection.updateOne(
+          { roomId: data.roomId, "players.userName": data.userId },
+          { $set: { "players.$.active": 1 } }
+        );
+        console.log(
+          `Set ${data.userId} as active in room ${data.roomId} (via lobby).`
+        );
       }
     }
-    delete players[socket.id];
-    socket.broadcast.emit("playerDisconnected", socket.id);
-  };
+  } catch (err) {
+    console.error("Error processing enterLobby event:", err);
+  }
+});
 
-  socket.on("disconnect", handleDisconnect);
-  socket.on("main-disconnect", handleDisconnect);
+socket.on("exitLobby", async (data) => {
+  // data should include: { roomId, id (socket.id), userId }
+  console.log(`Player ${data.userId} exited the lobby for room ${data.roomId}`);
+  
+});
+
+
+socket.on("enterConference", async (data) => {
+  // data should include: { roomId, id (socketId), userId (username) }
+  console.log(
+    `Player ${data.userId} with socket id ${data.id} entered the conference hall`
+  );
+
+  // (Optional) Join a special socket.io room
+  socket.join("conferenceHall");
+
+  try {
+    const roomCollection = await getRoomDetailsCollection();
+    // Remove any previous conference entry for this user (if it exists)
+    await roomCollection.updateOne(
+      { roomId: data.roomId },
+      { $pull: { conferenceHall: { userName: data.userId } } }
+    );
+
+    // Retrieve the updated room document to compute the next participant number
+    const roomDoc = await roomCollection.findOne({ roomId: data.roomId });
+    let index = 1;
+    if (roomDoc && roomDoc.conferenceHall) {
+      index = roomDoc.conferenceHall.length + 1;
+    }
+
+    // Now, push the new conference entry for this user
+    await roomCollection.updateOne(
+      { roomId: data.roomId },
+      {
+        $push: {
+          conferenceHall: {
+            number: index,
+            userName: data.userId,
+            socketId: data.id,
+          },
+        },
+      }
+    );
+    console.log(`Conference entry added for ${data.userId}`);
+  } catch (err) {
+    console.error("Error adding participant to conferenceHall:", err);
+  }
+
+  // Broadcast to other conference participants
+  socket.to("conferenceHall").emit("participantEntered", data);
+});
+
+
+
+socket.on("exitConference", async (data) => {
+  console.log(
+    `Player ${data.userId} with socket id ${data.id} exited the conference hall`
+  );
+
+  try {
+    const roomCollection = await getRoomDetailsCollection();
+    const result = await roomCollection.updateOne(
+      { roomId: data.roomId },
+      {
+        $pull: {
+          conferenceHall: { socketId: data.id },
+        },
+      }
+    );
+    console.log("Update result:", result);
+    if (result.modifiedCount === 0) {
+      console.log(
+        "No participant removed. Verify that roomId and socketId match the document."
+      );
+    }
+  } catch (err) {
+    console.error("Error removing participant from conferenceHall:", err);
+  }
+
+  // Optionally, broadcast to others
+  socket.to("conferenceHall").emit("participantExited", data);
+});
+
+const handleDisconnect = async () => {
+  console.log(`Socket disconnected: ${socket.id}`);
+  const player = players[socket.id];
+  if (player && player.playerName) {
+    try {
+      const roomCollection = await getRoomDetailsCollection();
+      // Remove the player's record from the room's players array
+      await roomCollection.updateOne(
+        { "players.userName": player.playerName },
+        { $pull: { players: { userName: player.playerName } } }
+      );
+      // Also remove the player from the conferenceHall if present
+      await roomCollection.updateOne(
+        { "conferenceHall.socketId": socket.id },
+        { $pull: { conferenceHall: { socketId: socket.id } } }
+      );
+      console.log(
+        `Removed ${player.playerName} from room and conferenceHall on disconnect.`
+      );
+    } catch (err) {
+      console.error("Error removing player on disconnect:", err);
+    }
+  }
+  delete players[socket.id];
+  socket.broadcast.emit("playerDisconnected", socket.id);
+};
+
+socket.on("disconnect", handleDisconnect);
+socket.on("main-disconnect", handleDisconnect);
+
+
+socket.on("disconnect", handleDisconnect);
+socket.on("main-disconnect", handleDisconnect);
+
+
+
+
 });
 
 // -------------------
@@ -195,28 +331,26 @@ app.post("/create-room", async (req, res) => {
     res.status(500).send("Internal server error.");
   }
 });
-
 app.post("/join-room", async (req, res) => {
   const { roomId, userName, sprite: currentImage } = req.body;
   try {
     const roomCollection = await getRoomDetailsCollection();
     const existingRoom = await roomCollection.findOne({ roomId });
     if (!existingRoom) return res.status(400).send("Room ID does not exist.");
-    const playerExists = existingRoom.players.find(
-      (p) => p.userName === userName
+
+    // Remove any existing record for this user (active or inactive)
+    await roomCollection.updateOne(
+      { roomId },
+      { $pull: { players: { userName } } }
     );
-    if (playerExists) {
-      await roomCollection.updateOne(
-        { roomId, "players.userName": userName },
-        { $set: { "players.$.active": 1 } }
-      );
-      console.log(`${userName} is now active in room ${roomId}`);
-    } else {
-      await roomCollection.updateOne(
-        { roomId },
-        { $push: { players: { userName, active: 1 } } }
-      );
-    }
+
+    // Add a new record for the user as active
+    await roomCollection.updateOne(
+      { roomId },
+      { $push: { players: { userName, active: 1 } } }
+    );
+    console.log(`${userName} rejoined room ${roomId} with a fresh record`);
+
     res.redirect(
       `/v1/game_office1?roomId=${roomId}&userId=${userName}&sprite=${currentImage}`
     );
@@ -225,6 +359,8 @@ app.post("/join-room", async (req, res) => {
     res.status(500).send("Internal server error.");
   }
 });
+
+
 
 app.get("/v1/game_office1", (req, res) => {
   const { roomId, userId, sprite } = req.query;
@@ -264,7 +400,20 @@ app.get("/api/get-players", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+app.get("/api/conference-participants", async (req, res) => {
+  const { roomId } = req.query;
+  try {
+    const participants = await getConferenceParticipants(roomId);
+    res.json(participants);
+  } catch (err) {
+    console.error("Error fetching conference participants:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 
 httpServer.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}/`);
 });
+
+

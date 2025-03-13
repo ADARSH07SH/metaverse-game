@@ -7,7 +7,7 @@ const startLocalStream = async () => {
   try {
     localStream = await navigator.mediaDevices.getUserMedia({
       video: true,
-      audio: true,
+      // audio: true,
     });
     localVideo.srcObject = localStream;
     localVideo.muted = false;

@@ -4,14 +4,13 @@ body {
   overflow: hidden;
   margin: 0;
   padding: 0;
-  width: 100%;
   height: 100%;
   background: #222;
   color: #eee;
   font-family: Arial, sans-serif;
 }
 
-/* Video Overlay - Top Right */
+/* Video Overlay - Top Right (Normal Mode) */
 .video-overlay {
   position: absolute;
   top: 10px;
@@ -22,8 +21,7 @@ body {
   z-index: 5;
 }
 
-/* Individual Video Boxes */
-.vbox {
+.video-overlay .vbox {
   width: 200px;
   height: 150px;
   background: rgba(100, 0, 100, 0.5);
@@ -31,9 +29,9 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+  margin-bottom: 10px;
 }
 
-/* Video Styling */
 #other-video,
 #my-video {
   width: 100%;
@@ -110,12 +108,10 @@ body {
   cursor: pointer;
   transition: background 0.2s;
   border-radius: 5px;
-
   width: 65%;
   height: 105%;
   font-size: 12px;
   padding: 6px;
-  border-radius: 5px;
   text-align: center;
   display: flex;
   align-items: center;
@@ -158,7 +154,6 @@ footer {
   z-index: 10;
 }
 
-/* Account Container */
 .acc {
   display: flex;
   width: 100%;
@@ -172,7 +167,6 @@ footer {
   margin-left: 10px;
 }
 
-/* Center Buttons */
 .accbutton {
   display: flex;
   gap: 10px;
@@ -180,14 +174,12 @@ footer {
   flex-grow: 1;
 }
 
-/* Right Side Controls */
 .right-controls {
   display: flex;
   gap: 10px;
   margin-right: 10px;
 }
 
-/* Button Styling */
 .accbutton div,
 .right-controls div {
   display: flex;
@@ -211,7 +203,6 @@ footer {
   color: white;
 }
 
-/* End Call Button */
 .endcall i {
   color: #d81835;
 }
@@ -219,22 +210,12 @@ footer {
   animation: shake 0.4s ease-in-out infinite;
 }
 @keyframes shake {
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-  25% {
-    transform: translateX(-2px);
-  }
-  50% {
-    transform: translateX(2px);
-  }
-  75% {
-    transform: translateX(-2px);
-  }
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-2px); }
+  50% { transform: translateX(2px); }
+  75% { transform: translateX(-2px); }
 }
 
-/* Icon Toggle States */
 .microphone .fa-microphone-slash,
 .videobtn .fa-video-slash {
   display: none;
@@ -264,7 +245,6 @@ footer {
   .chatbox {
     height: 30%;
     width: 30%;
-
     bottom: 10%;
   }
   footer {
@@ -286,13 +266,10 @@ footer {
     font-size: 16px;
   }
   .chat {
-    display: flex;
     flex-direction: column;
     gap: 6px;
     width: 100%;
   }
-
-  /* Input field full width */
   .chat input {
     width: 90%;
     padding: 8px;
@@ -300,63 +277,36 @@ footer {
     border-radius: 5px;
     text-align: left;
   }
-
-  /* Chat submit button full width */
   .player-chat-submit {
     width: 90%;
     height: 35px;
     font-size: 12px;
     padding: 6px;
     border-radius: 5px;
-    text-align: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
   }
 }
 
 @media (max-width: 480px) {
-  /* Hide left side info */
-  .myinfo {
-    display: none;
-  }
-
-  /* In right controls, show only chat and gamepad */
+  .myinfo { display: none; }
   .right-controls .info,
   .right-controls .people,
-  .right-controls .othercontrols {
-    display: none;
-  }
-
-  /* Adjust chatbox */
+  .right-controls .othercontrols { display: none; }
   .chatbox {
     width: 30%;
     height: 30%;
-
     transform: translateX(-130%);
     bottom: 10%;
-    display: flex;
-    flex-direction: column;
     padding: 10px;
   }
-
-  /* Chat messages */
   #chat-messages {
-    flex-grow: 1;
     max-height: 200px;
-    overflow-y: auto;
     padding: 5px;
   }
-
-  /* Make chat input & button stack one below another */
   .chat {
-    display: flex;
     flex-direction: column;
     gap: 6px;
     width: 100%;
   }
-
-  /* Input field full width */
   .chat input {
     width: 90%;
     padding: 8px;
@@ -364,25 +314,14 @@ footer {
     border-radius: 5px;
     text-align: left;
   }
-
-  /* Chat submit button full width */
   .player-chat-submit {
     width: 90%;
     height: 35px;
     font-size: 12px;
     padding: 6px;
     border-radius: 5px;
-    text-align: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
   }
-
-  /* Footer adjustments */
-  footer {
-    font-size: 10px;
-    width: 80%;
-  }
+  footer { font-size: 10px; width: 80%; }
 }
 
 /* Players List */
@@ -392,10 +331,7 @@ footer {
   left: 80%;
   width: 15%;
   height: auto;
-  
-  /* background-color: rgba(0, 0, 0, 0.85); */
   color: rgb(37, 41, 4);
-  /* padding: 5px; */
   border-radius: 12px;
   display: flex;
   flex-direction: column;
@@ -404,36 +340,19 @@ footer {
   border: 1px solid #555;
   overflow-y: auto;
 }
-
-.players-list h3 {
-  text-align: center;
-  margin-bottom: 10px;
-}
-
-.players-list ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  overflow-y: auto;
-}
-
+.players-list h3 { text-align: center; margin-bottom: 10px; }
+.players-list ul { list-style: none; padding: 0; margin: 0; overflow-y: auto; }
 .players-list li {
   padding: 8px;
   border-bottom: 1px solid rgb(5, 34, 67);
   text-align: center;
 }
+.active-player { color: black; font-weight: bold; }
 
-.active-player {
-  color: black;
-  font-weight: bold;
-}
-
-/* Responsive */
 @media (max-width: 768px) {
   .players-list {
     width: 50%;
     left: 25%;
-    height: auto;
     max-height: 40%;
   }
 }
@@ -442,7 +361,6 @@ footer {
   .players-list {
     width: 80%;
     left: 10%;
-    height: auto;
     max-height: 50%;
     font-size: 14px;
   }
@@ -458,29 +376,23 @@ footer {
   height: 90% !important;
   width: 600% !important;
   position: absolute;
-  bottom: 100% !important; /* Position above the hand icon */
+  bottom: 100% !important;
   left: 50%;
   transform: translateX(-50%);
-   display: none !important;
+  display: none !important;
   background: rgba(0, 0, 0, 0.8);
   padding: 5px;
   border-radius: 5px !important;
   gap: 5px;
   white-space: nowrap;
 }
-
-.reaction:hover .emoji-bar {
-  display: flex !important;
-}
-.reaction:hover .emoji {
-  display: flex;
-}
+.reaction:hover .emoji-bar { display: flex !important; }
+.reaction:hover .emoji { display: flex; }
 .emoji {
   font-size: 24px;
   cursor: pointer;
   transition: transform 0.2s ease-in-out;
   display: none;
 }
-.emoji:hover {
-  transform: scale(1.5);
-}
+.emoji:hover { transform: scale(1.5); }
+

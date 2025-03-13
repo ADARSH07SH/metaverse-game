@@ -40,11 +40,29 @@ const playerChat = async () => {
 
 
 
-
+const getConferenceParticipants = async (roomId) => {
+  try {
+    const roomCollection = await getRoomDetailsCollection();
+    const room = await roomCollection.findOne({ roomId });
+    if (room && room.conferenceHall) {
+      // Map each participant to a simplified object with userName and socketId.
+      return room.conferenceHall.map((participant) => ({
+        number: participant.number, // if you need the number
+        userName: participant.userName,
+        socketId: participant.socketId,
+      }));
+    }
+    return [];
+  } catch (err) {
+    console.error("Error retrieving conference participants:", err);
+    return [];
+  }
+};
 
 
 module.exports = {
   getUserDetailsCollection,
   getRoomDetailsCollection,
   playerChat,
+  getConferenceParticipants,
 };
