@@ -1,4 +1,3 @@
-const socket = io();
 
 const config = {
   type: Phaser.AUTO,
@@ -509,6 +508,14 @@ function update(time) {
     } else {
       if (inConferenceHall) {
         inConferenceHall = false;
+        document
+          .getElementById("exitConferenceBtn")
+          .addEventListener("click", () => {
+            conference.exit();
+            // Also, emit an event to notify the server if necessary:
+            socket.emit("exitConference", { roomId, id: socket.id, userId });
+          });
+
         console.log("Exited Conference Hall");
         conference.exit(); // Defined in conference.js
         socket.emit("exitConference", { roomId, id: socket.id, userId });
@@ -680,7 +687,7 @@ function update(time) {
         console.log(`Near player: ${id}`);
         callCooldown[id] = true;
         setTimeout(() => {
-          startCallWithPlayer(id);
+          // startCallWithPlayer(id);
           activeCalls[id] = true;
           delete callCooldown[id];
         }, CALL_DELAY);
@@ -688,7 +695,7 @@ function update(time) {
     } else if (activeCalls[id]) {
       console.log(`Moving away from player: ${id}`);
       if (distance > PROXIMITY_THRESHOLD + 20) {
-        endCallWithPlayer(id);
+        // endCallWithPlayer(id);
         delete activeCalls[id];
       } else {
         setTimeout(() => {
@@ -696,7 +703,7 @@ function update(time) {
             Phaser.Math.Distance.Between(player.x, player.y, other.x, other.y) >
             PROXIMITY_THRESHOLD
           ) {
-            endCallWithPlayer(id);
+            // endCallWithPlayer(id);
             delete activeCalls[id];
           }
         }, DISCONNECT_DELAY);

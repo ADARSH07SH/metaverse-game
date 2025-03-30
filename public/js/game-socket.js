@@ -1,3 +1,4 @@
+
 const gameContainer = document.getElementById("gamedata");
 roomId = gameContainer.getAttribute("data-room-id");
 userId = gameContainer.getAttribute("data-user-id");
@@ -11,7 +12,6 @@ socket.on("player-chat", (data) => {
   messageDiv.classList.add("chat-message");
   messageDiv.innerHTML = `<strong>${data.userId}</strong>: ${data.message}`;
   document.getElementById("chat-messages").appendChild(messageDiv);
-  
 });
 
 chatButton.addEventListener("click", () => {
