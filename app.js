@@ -126,32 +126,30 @@ io.on("connection", (socket) => {
     );
   });
 
-  // --- WebRTC Signaling for Video Call (Targeted) ---
-  // Each signaling message includes a target field.
   socket.on("offer", (data) => {
-    console.log(`Offer from ${socket.id} targeting ${data.target}`);
-    if (data.target) {
-      io.to(data.target).emit("offer", data);
-    } else {
-      socket.to("conferenceHall").emit("offer", data);
+    if (!data.target) return;
+    const targetSocket = io.sockets.sockets.get(data.target);
+    if (targetSocket) {
+      console.log(`Relaying offer from ${socket.id} to ${data.target}`);
+      targetSocket.emit("offer", data);
     }
   });
 
   socket.on("answer", (data) => {
-    console.log(`Answer from ${socket.id} targeting ${data.target}`);
-    if (data.target) {
-      io.to(data.target).emit("answer", data);
-    } else {
-      socket.to("conferenceHall").emit("answer", data);
+    if (!data.target) return;
+    const targetSocket = io.sockets.sockets.get(data.target);
+    if (targetSocket) {
+      console.log(`Relaying answer from ${socket.id} to ${data.target}`);
+      targetSocket.emit("answer", data);
     }
   });
 
   socket.on("iceCandidate", (data) => {
-    console.log(`ICE candidate from ${socket.id} targeting ${data.target}`);
-    if (data.target) {
-      io.to(data.target).emit("iceCandidate", data);
-    } else {
-      socket.to("conferenceHall").emit("iceCandidate", data);
+    if (!data.target) return;
+    const targetSocket = io.sockets.sockets.get(data.target);
+    if (targetSocket) {
+      console.log(`Relaying ICE candidate from ${socket.id} to ${data.target}`);
+      targetSocket.emit("iceCandidate", data);
     }
   });
 
@@ -181,26 +179,22 @@ io.on("connection", (socket) => {
   });
 
   socket.on("exitConference", async (data) => {
-    console.log(
-      `Player ${data.userId} with socket id ${data.id} exited the conference hall`
-    );
     try {
       const roomCollection = await getRoomDetailsCollection();
       const result = await roomCollection.updateOne(
         { roomId: data.roomId },
-        { $pull: { conferenceHall: { socketId: data.id } } }
+        { $pull: { conferenceHall: { socketId: socket.id } } }
       );
-      console.log("Update result for exitConference:", result);
-      if (result.modifiedCount === 0) {
-        console.log(
-          "No participant removed. Verify that roomId and socketId match."
-        );
-      }
+      console.log(`Removed ${socket.id} from conference hall:`, result);
+      socket.to("conferenceHall").emit("participantExited", {
+        socketId: socket.id,
+        userName: data.userId,
+      });
     } catch (err) {
-      console.error("Error removing participant from conferenceHall:", err);
+      console.error("Error in exitConference:", err);
     }
-    socket.to("conferenceHall").emit("participantExited", data);
   });
+
 
   // Disconnect handling
   const handleDisconnect = async () => {
@@ -336,6 +330,27 @@ app.get("/api/get-players", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
+// Save chat message helper
+async function saveChatMessage(roomId, socketId, message, userId) {
+  const chatCollection = await playerChat();
+  try {
+    const room = await chatCollection.findOne({ roomId });
+    if (room) {
+      await chatCollection.updateOne(
+        { roomId },
+        { $push: { chat: { socketId, userId, message } } }
+      );
+    } else {
+      await chatCollection.insertOne({
+        roomId,
+        chat: [{ socketId, userId, message }],
+      });
+    }
+  } catch (err) {
+    console.error("Error saving chat message:", err);
+  }
+}
 
 app.get("/api/conference-participants", async (req, res) => {
   const { roomId } = req.query;

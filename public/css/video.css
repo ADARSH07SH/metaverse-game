@@ -1,138 +1,179 @@
+/* Base Styles */
+body {
+  margin: 0;
+  background: rgba(0, 0, 0, 0.7); /* Semi-opaque background */
+  backdrop-filter: blur(8px);
+  font-family: Arial, sans-serif;
+  color: #fff;
+}
+
+/* Conference Window */
 .conference-window {
   position: fixed;
-  top: 5%;
-  left: 5%;
-  width: 90%;
-  height: 90%;
-  background-color: rgba(0, 0, 0, 0.2);
-  color: #fff;
+  top: 40%; /* Move up a bit */
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(90vw, 1200px);
+  height: min(80vh, 800px);
+  background: rgba(26, 26, 26, 0.9); /* Semi-opaque dark bg */
+  border-radius: 15px;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
+  display: none;
+  flex-direction: column;
   z-index: 1000;
+  overflow: hidden;
+}
+
+/* Header */
+.conference-header {
+  padding: 1rem;
+  background: rgba(37, 37, 37, 0.95);
+  border-bottom: 1px solid #333;
+  z-index: 1;
+}
+
+/* Video Grid Container */
+.video-grid-container {
+  flex: 1;
+  position: relative;
+  padding: 1rem;
+  overflow: hidden;
+}
+
+/* Video Grid: use grid layout that scales videos to fit available space */
+.video-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* Lower min size to avoid scrolling */
+  gap: 1rem;
+  height: 100%;
+  width: 100%;
+  padding: 0.5rem;
+  /* No vertical scroll; videos will shrink to fit */
+  overflow: hidden;
+  align-content: start;
+}
+
+/* Video Card for each remote video */
+.video-card {
+  position: relative;
+  background: #2a2a2a;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+  aspect-ratio: 16 / 9;
   display: flex;
   flex-direction: column;
-  border-radius: 10px;
-  padding: 20px;
+  justify-content: center;
 }
 
-.conference-header {
-  text-align: center;
-  margin-bottom: 10px;
+/* Video Card Hover */
+.video-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
-.conference-content {
-  flex: 1;
-  display: flex;
-  overflow: hidden;
-}
-
-.video-grid {
-  flex: 3;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  grid-gap: 10px;
-  padding: 10px;
-  overflow-y: auto;
-}
-
+/* Video Container (maintains aspect ratio) */
 .video-container {
   position: relative;
-  background: #333;
-  border-radius: 5px;
-  overflow: hidden;
-}
-
-.video-container video {
   width: 100%;
-  height: auto;
-  display: block;
+  height: 100%;
+  background: #000;
 }
 
-.video-container .user-name {
+/* Remote Video Element */
+.remote-video, #local-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Participant Name Overlay on Remote Video */
+.participant-name {
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
-  background: rgba(0,0,0,0.4);
-  padding: 5px;
-  font-size: 14px;
+  padding: 0.5rem;
+  background: linear-gradient(transparent, rgba(0,0,0,0.8));
+  color: white;
+  font-size: 0.9em;
   text-align: center;
+  backdrop-filter: blur(4px);
 }
 
-.participants-panel {
-  flex: 1;
-  background: #222;
-  margin-left: 10px;
-  padding: 10px;
-  border-radius: 5px;
-  overflow-y: auto;
-}
-
-.participants-panel h3 {
-  text-align: center;
-  margin-bottom: 10px;
-}
-
-.participants-panel ul {
-  list-style: none;
-  padding: 0;
-}
-
-.participants-panel li {
-  margin: 5px 0;
-  padding: 5px;
-  background: #444;
-  border-radius: 3px;
-  font-size: 14px;
-  text-align: center;
-}
-
-#exitConferenceBtn {
-  margin-top: 10px;
-  align-self: center;
-  padding: 10px 20px;
-  background: #e74c3c;
-  border: none;
-  color: #fff;
-  border-radius: 5px;
-  cursor: pointer;
-}
-.video-container {
-  position: relative;
-  width: 300px;
-  height: 200px;
-  background: #000;
-  margin: 10px;
-  border: 2px solid #333;
+/* Local Video Container (fixed on screen) */
+.local-video-container {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  width: 200px;
+  height: 112px;
+  border: 2px solid #4caf50;
+  border-radius: 8px;
   overflow: hidden;
+  background: #000;
+  z-index: 1001;
 }
 
-.video-placeholder {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  color: #fff;
-  font-size: 100px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #555;
-}
-
-.remote-video {
+/* Local Video Element */
+#local-video {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  display: none; /* hidden until stream is attached */
 }
 
-.video-overlay {
+/* Participants Panel */
+.participants-panel {
+  flex: 1;
+  background: #222;
+  border-left: 1px solid #333;
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+/* Exit Button */
+#exitConferenceBtn {
   position: absolute;
-  bottom: 0;
-  left: 0;
-  background: blue;
-  color: white;
-  padding: 2px 5px;
-  font-size: 14px;
-  opacity: 0.8;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.8rem 2rem;
+  background: #e74c3c;
+  color: #fff;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: all 0.3s;
+  z-index: 2;
+}
+
+#exitConferenceBtn:hover {
+  background: #c0392b;
+  transform: translateX(-50%) scale(1.05);
+}
+
+/* Remote Videos Container */
+#remote-videos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  width: 100%;
+  height: 100%;
+  align-items: stretch;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .conference-window {
+    width: 95vw;
+    height: 90vh;
+  }
+  .video-grid {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  }
+  .local-video-container {
+    width: 140px;
+    height: 80px;
+  }
 }

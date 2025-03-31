@@ -38,29 +38,20 @@
   <body>
     <div id="game-container"></div>
 
-    <!-- Conference Window Overlay -->
-    <div id="conferenceWindow" class="conference-window" style="display: none;">
-      <div class="conference-header">
-        <h2>Conference Meeting</h2>
-      </div>
-      <div class="conference-content">
-        <!-- Video grid for local/remote videos -->
-        <div id="videoGrid" class="video-grid">
-          <div id="remote-videos"></div>
-
-          <div id="local-video-container" class="video-container">
-            <video id="local-video" autoplay playsinline muted></video>
-            <p class="user-name">You</p>
-          </div>
-        </div>
-        <!-- Participants panel -->
-        <div class="participants-panel">
-          <h3>Participants</h3>
-          <ul id="participantsList"></ul>
-        </div>
-      </div>
-      <button id="exitConferenceBtn">Exit Conference</button>
-    </div>
+   <div id="conferenceWindow" class="conference-window" style="display: none;">
+  <div class="conference-header">
+    <h2>Conference Meeting - <%= userId %></h2>
+  </div>
+  <div class="video-grid" id="videoGrid">
+  <div id="remote-videos"></div>
+  <div class="local-video-container">
+    <video id="local-video" autoplay playsinline muted></video>
+    <div class="participant-name">You</div>
+    <div id="local-avatar" class="video-avatar"></div>
+  </div>
+</div>
+  <button id="exitConferenceBtn">Exit Conference</button>
+</div>
 
     <!-- Chatbox and Players List -->
     <div class="chatbox">
@@ -141,14 +132,110 @@
     <script src="/js/game-socket.js"></script>
     <script src="/js/conference.js"></script>
     <script src="/js/game.js"></script>
+   
 
     <!-- Inline global variables -->
     <script>
-      let roomId = "<%= roomId %>";
+     let roomId = "<%= roomId %>";
       let userId = "<%= userId %>";
       let spriteNum = "<%= sprite %>";
+
       console.log("Player name:", userId);
       console.log("Joined room:", roomId);
+
+      socket.emit("player position");
+      socket.on("connect", () => {
+        console.log("Socket ID:", socket.id);
+      });
+      socket.on("message", (data) => {
+        console.log("Message from server:", data);
+      });
+
+      function updateTime() {
+        const now = new Date();
+        const hours = now.getHours().toString().padStart(2, "0");
+        const minutes = now.getMinutes().toString().padStart(2, "0");
+        document.getElementById("timeDisplay").innerText = `${hours}:${minutes}`;
+      }
+      updateTime();
+      setInterval(updateTime, 1000);
+
+      document.addEventListener("DOMContentLoaded", function () {
+        const micButton = document.querySelector(".microphone");
+        const videoButton = document.querySelector(".videobtn");
+        const endcall = document.querySelector(".endcall");
+        endcall.addEventListener("click", function () {
+          closeGame();
+        });
+        micButton.addEventListener("click", function () {
+          micButton.classList.toggle("muted");
+        });
+        videoButton.addEventListener("click", function () {
+          videoButton.classList.toggle("video-off");
+        });
+      });
+
+      const playersList = document.querySelector(".players-list");
+      const playersUl = document.getElementById("players-ul");
+      const people = document.querySelector(".people");
+
+      people.addEventListener("click", async function () {
+        playersList.classList.toggle("hidden");
+        if (!playersList.classList.contains("hidden")) {
+          await fetchActivePlayers();
+        }
+      });
+
+      async function fetchActivePlayers() {
+        try {
+          const response = await fetch(`/api/get-players?roomId=${roomId}`);
+          const players = await response.json();
+          playersUl.innerHTML = "";
+          players
+            .filter(player => player.active === 1)
+            .forEach(player => {
+              const li = document.createElement("li");
+              li.textContent = player.userName;
+              li.classList.add("active-player");
+              playersUl.appendChild(li);
+            });
+        } catch (error) {
+          console.error("Error fetching players:", error);
+        }
+      }
+
+      document.querySelector(".chat i").addEventListener("click", function () {
+        document.querySelector(".chatbox").classList.toggle("hidden");
+      });
+
+      document.querySelector(".gamepad i").addEventListener("click", function () {
+        document.getElementById("showButton").click();
+      });
+
+      document.addEventListener("DOMContentLoaded", function () {
+        document.getElementById("callEndLink").href = `/joinroom?userName=${encodeURIComponent(userId)}`;
+      });
+
+      window.addEventListener("beforeunload", () => {
+        socket.emit("main-disconnect");
+      });
+
+      // Attach event listeners to emoji buttons
+      document.addEventListener("DOMContentLoaded", function () {
+        const emojis = document.querySelectorAll(".emoji");
+        emojis.forEach((emojiEl) => {
+          emojiEl.addEventListener("click", () => {
+            const selectedEmoji = emojiEl.getAttribute("data-emoji");
+            socket.emit("player-chat", {
+              roomId,
+              socketId: socket.id,
+              message: `${userId} reacted: ${selectedEmoji}`,
+              userId,
+            });
+          });
+        });
+      });
+    
     </script>
   </body>
 </html>

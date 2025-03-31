@@ -323,7 +323,44 @@ footer {
   }
   footer { font-size: 10px; width: 80%; }
 }
+/* Chat messages container */
+#chat-messages {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-right: 5px; /* Prevent scrollbar overlap */
+  scroll-behavior: smooth; /* Smooth scrolling */
+}
 
+/* Make sure messages are properly aligned */
+.chat-message {
+  align-self: flex-start;
+  max-width: 95%;
+  word-break: break-word;
+}
+
+/* Highlight your own messages */
+.chat-message strong {
+  color: #4CAF50; /* Green for your messages */
+}
+
+/* Other users' messages */
+.chat-message:not(:last-child) strong {
+  color: #FF9800; /* Orange for others */
+}
+.active {
+    color: #4CAF50 !important;
+    background-color: rgba(76, 175, 80, 0.2);
+    border-radius: 50%;
+}
+
+.hidden {
+    display: none !important;
+}
+#player-chat:focus {
+    outline: 2px solid #4CAF50;
+    background-color: rgba(76, 175, 80, 0.1);
+}
 /* Players List */
 .players-list {
   position: absolute;

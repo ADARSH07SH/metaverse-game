@@ -1,24 +1,31 @@
-
 const gameContainer = document.getElementById("gamedata");
 roomId = gameContainer.getAttribute("data-room-id");
 userId = gameContainer.getAttribute("data-user-id");
-console.log();
 const chatButton = document.querySelector(".player-chat-submit");
 const playerChatInput = document.getElementById("player-chat");
+const chatMessages = document.getElementById("chat-messages");
+
+// Function to scroll to bottom of chat
+function scrollChatToBottom() {
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+}
 
 socket.on("player-chat", (data) => {
   // Display the received message
   const messageDiv = document.createElement("div");
   messageDiv.classList.add("chat-message");
   messageDiv.innerHTML = `<strong>${data.userId}</strong>: ${data.message}`;
-  document.getElementById("chat-messages").appendChild(messageDiv);
+  chatMessages.appendChild(messageDiv);
+
+  // Scroll to the new message
+  scrollChatToBottom();
 });
 
 chatButton.addEventListener("click", () => {
   const playerChat = playerChatInput.value;
 
   if (playerChat.trim() !== "") {
-    // Emit the chat message to the server with roomId, socketId, and message
+    // Emit the chat message to the server
     socket.emit("player-chat", {
       roomId,
       socketId: socket.id,
@@ -26,7 +33,20 @@ chatButton.addEventListener("click", () => {
       userId: userId,
     });
 
-    // Clear the input field after sending the message
+    // Clear the input field
     playerChatInput.value = "";
+
+    // Focus remains on input for next message
+    playerChatInput.focus();
+  }
+});
+
+// Also scroll to bottom when chat is opened
+document.querySelector(".chat i").addEventListener("click", scrollChatToBottom);
+
+// Allow sending with Enter key
+playerChatInput.addEventListener("keypress", (e) => {
+  if (e.key === "Enter") {
+    chatButton.click();
   }
 });

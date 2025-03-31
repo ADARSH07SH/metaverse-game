@@ -192,11 +192,7 @@ function create() {
     joystick.thumb.setVisible(joystickToggle);
   });
 
-  // Input: create WASD keys and X for sitting toggle
-  wKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
-  aKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
-  sKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
-  dKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
+
   sitKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.X);
 
   cursors = this.input.keyboard.createCursorKeys();
@@ -635,22 +631,7 @@ function update(time) {
         player.anims.play("up", true);
         player.lastDirection = "up";
       }
-    } else if (aKey.isDown) {
-      player.setVelocityX(-speed);
-      player.anims.play("left", true);
-      player.lastDirection = "left";
-    } else if (dKey.isDown) {
-      player.setVelocityX(speed);
-      player.anims.play("right", true);
-      player.lastDirection = "right";
-    } else if (wKey.isDown) {
-      player.setVelocityY(-speed);
-      player.anims.play("up", true);
-      player.lastDirection = "up";
-    } else if (sKey.isDown) {
-      player.setVelocityY(speed);
-      player.anims.play("down", true);
-      player.lastDirection = "down";
+    
     } else if (cursors.left.isDown) {
       player.setVelocityX(-speed);
       player.anims.play("left", true);
