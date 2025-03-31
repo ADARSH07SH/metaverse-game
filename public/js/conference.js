@@ -9,6 +9,81 @@ document.addEventListener("DOMContentLoaded", () => {
   let conferenceParticipants = [];
   const iceServers = [{ urls: "stun:stun.l.google.com:19302" }];
 
+  // Avatar configuration
+  const avatarColors = ["#FFB399", "#FF33FF", "#00B3E6", "#E6B333", "#3366E6"];
+
+  // Get avatar properties from username
+  function getAvatarConfig(userName) {
+    const initial = userName.charAt(0).toUpperCase();
+    const color = avatarColors[userName.charCodeAt(0) % avatarColors.length];
+    return { initial, color };
+  }
+
+  // Update video elements with avatar visibility
+  function updateVideoElements() {
+    document.querySelectorAll(".video-container").forEach((container) => {
+      const video = container.querySelector("video");
+      const avatar = container.querySelector(".video-avatar");
+      const isVideoActive = video.srcObject
+        ?.getVideoTracks()
+        .some((track) => track.enabled);
+
+      avatar.style.display = isVideoActive ? "none" : "flex";
+      video.style.display = isVideoActive ? "block" : "none";
+    });
+
+    // Update local video element
+    const localVideo = document.getElementById("local-video");
+    const localAvatar = document.getElementById("local-avatar");
+    const isLocalVideoActive = localVideo.srcObject
+      ?.getVideoTracks()
+      .some((track) => track.enabled);
+    localAvatar.style.display = isLocalVideoActive ? "none" : "flex";
+    localVideo.style.display = isLocalVideoActive ? "block" : "none";
+  }
+
+  // Toggle audio mute state
+  function toggleAudio() {
+    const micButton = document.querySelector(".microphone");
+    if (localStream) {
+      const audioTracks = localStream.getAudioTracks();
+      if (audioTracks.length > 0) {
+        const newState = !audioTracks[0].enabled;
+        audioTracks[0].enabled = newState;
+        micButton.classList.toggle( !newState);
+      }
+    }
+  }
+
+  // Toggle video state
+  function toggleVideo() {
+    const videoButton = document.querySelector(".videobtn");
+    if (localStream) {
+      const videoTracks = localStream.getVideoTracks();
+      if (videoTracks.length > 0) {
+        const newState = !videoTracks[0].enabled;
+        videoTracks[0].enabled = newState;
+        videoButton.classList.toggle( !newState);
+        updateVideoElements();
+
+        // Notify other participants
+        socket.emit("videoStateChange", {
+          userId: document.getElementById("gamedata").dataset.userId,
+          videoEnabled: newState,
+        });
+      }
+    }
+  }
+
+  // Initialize local avatar
+  function initLocalAvatar() {
+    const userId = document.getElementById("gamedata").dataset.userId;
+    const { initial, color } = getAvatarConfig(userId);
+    const localAvatar = document.getElementById("local-avatar");
+    localAvatar.textContent = initial;
+    localAvatar.style.backgroundColor = color;
+  }
+
   // ICE Candidate Queue Handling
   function processIceQueue(pc) {
     while (pc.iceQueue.length > 0) {
@@ -39,7 +114,9 @@ document.addEventListener("DOMContentLoaded", () => {
     pc.ontrack = ({ streams: [stream] }) => {
       if (!stream) return;
       const videoContainer = createVideoElement(socketId, userName);
-      videoContainer.querySelector("video").srcObject = stream;
+      const videoElement = videoContainer.querySelector("video");
+      videoElement.srcObject = stream;
+      updateVideoElements();
     };
 
     pc.onconnectionstatechange = () => {
@@ -49,7 +126,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     };
 
-    // Add local tracks if available
     if (localStream) {
       localStream.getTracks().forEach((track) => {
         if (!pc.getSenders().some((s) => s.track === track)) {
@@ -61,18 +137,22 @@ document.addEventListener("DOMContentLoaded", () => {
     return pc;
   }
 
-  // Video Element with Name
+  // Video Element with Name and Avatar
   function createVideoElement(socketId, userName) {
     let container = document.getElementById(`remote-${socketId}`);
     if (!container) {
+      const { initial, color } = getAvatarConfig(userName);
+
       container = document.createElement("div");
       container.className = "video-card";
       container.id = `remote-${socketId}`;
+      container.dataset.userId = userName;
 
       container.innerHTML = `
         <div class="video-container">
           <video class="remote-video" autoplay playsinline></video>
           <div class="participant-name">${userName}</div>
+          <div class="video-avatar" style="background-color: ${color}">${initial}</div>
         </div>
       `;
       remoteVideosContainer.appendChild(container);
@@ -89,6 +169,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     const element = document.getElementById(`remote-${socketId}`);
     element?.remove();
+    updateVideoElements();
   }
 
   // Initialize Connections
@@ -115,6 +196,11 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
   }
+
+  // Event Listeners
+  document.querySelector(".microphone").addEventListener("click", toggleAudio);
+  document.querySelector(".videobtn").addEventListener("click", toggleVideo);
+  exitConferenceBtn.addEventListener("click", () => conference.exit());
 
   // Signaling Handlers
   socket.on("offer", async ({ offer, sender }) => {
@@ -168,22 +254,29 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Handle participant exits
   socket.on("participantExited", ({ socketId }) => {
     cleanupConnection(socketId);
   });
 
-  // Conference Controls
-  exitConferenceBtn.addEventListener("click", () => conference.exit());
+  socket.on("videoStateChange", ({ userId, videoEnabled }) => {
+    const containers = document.querySelectorAll(`[data-user-id="${userId}"]`);
+    containers.forEach((container) => {
+      const avatar = container.querySelector(".video-avatar");
+      const video = container.querySelector("video");
+      avatar.style.display = videoEnabled ? "none" : "flex";
+      video.style.display = videoEnabled ? "block" : "none";
+    });
+  });
 
+  // Conference Controls
   window.conference = {
     async enter() {
       conferenceWindow.style.display = "block";
       try {
-        // Clear previous connections
         Object.values(peerConnections).forEach((pc) => pc.close());
         peerConnections = {};
         remoteVideosContainer.innerHTML = "";
+        initLocalAvatar();
 
         if (!localStream) {
           localStream = await navigator.mediaDevices.getUserMedia({
@@ -192,6 +285,7 @@ document.addEventListener("DOMContentLoaded", () => {
           });
           localVideoElem.srcObject = localStream;
           localVideoElem.muted = true;
+          updateVideoElements();
         }
 
         const roomId = document.getElementById("gamedata").dataset.roomId;
