@@ -16,7 +16,7 @@ body {
   width: min(90vw, 1200px);
   height: min(80vh, 800px);
   background: rgba(26, 26, 26, 0.9); /* Semi-opaque dark bg */
-  border-radius: 15px;
+  
   box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
   display: none;
   flex-direction: column;
@@ -45,8 +45,8 @@ body {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* Lower min size to avoid scrolling */
   gap: 1rem;
-  height: 100%;
-  width: 100%;
+  height: 95%;
+  width: 95%;
   padding: 0.5rem;
   /* No vertical scroll; videos will shrink to fit */
   overflow: hidden;
@@ -57,7 +57,7 @@ body {
 .video-card {
   position: relative;
   background: #2a2a2a;
-  border-radius: 12px;
+ 
   overflow: hidden;
   transition: transform 0.2s, box-shadow 0.2s;
   aspect-ratio: 16 / 9;
@@ -81,7 +81,7 @@ body {
 }
 
 /* Remote Video Element */
-.remote-video, #local-video {
+.local-video {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -92,13 +92,13 @@ body {
   position: absolute;
   bottom: 0;
   left: 0;
-  right: 0;
+  right: 10;
   padding: 0.5rem;
   background: linear-gradient(transparent, rgba(0,0,0,0.8));
   color: white;
   font-size: 0.9em;
-  text-align: center;
-  backdrop-filter: blur(4px);
+  text-align: right;
+  
 }
 
 /* Local Video Container (fixed on screen) */
@@ -134,7 +134,7 @@ body {
 /* Exit Button */
 #exitConferenceBtn {
   position: absolute;
-  bottom: 1rem;
+  bottom: 4rem;
   left: 50%;
   transform: translateX(-50%);
   padding: 0.8rem 2rem;
@@ -163,6 +163,20 @@ body {
   align-items: stretch;
 }
 
+.remote-video.show {
+  display: block !important;
+}
+.remote-video.dontshow {
+  display: none !important;
+}
+.video-avatar.show {
+  display: flex !important;
+}
+.video-avatar.dontshow {
+  display: none !important;
+}
+
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .conference-window {
@@ -176,4 +190,52 @@ body {
     width: 140px;
     height: 80px;
   }
+}
+
+
+
+.video-avatar {
+  width: 100%;
+  height: 100%;
+  background-color: #2c2c2c;
+  display: block!important;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 48px;
+  font-weight: bold;
+  border-radius: 8px;
+}
+
+
+.remote-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+ 
+}
+
+.microphone .fa-microphone-slash,
+.videobtn .fa-video-slash {
+  display: none;
+}
+.muted .fa-microphone {
+  display: none;
+}
+.muted .fa-microphone-slash {
+  display: inline;
+}
+.video-off .fa-video {
+  display: none;
+}
+.video-off .fa-video-slash {
+  display: inline;
+}
+
+.muted,
+.video-off {
+  background-color: red !important;
+}
+.hidden {
+  display: none !important;
 }

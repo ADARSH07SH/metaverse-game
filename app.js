@@ -54,11 +54,46 @@ io.on("connection", (socket) => {
     socket.emit("message", `Room ${roomId} created successfully!`);
   });
 
-  socket.on("joinRoom", async (roomId) => {
-    socket.join(roomId);
-    console.log(`Socket ${socket.id} joined room ${roomId}`);
-    socket.emit("message", `Joined room ${roomId}`);
-  });
+socket.on("joinRoom", async (roomId, userId) => {
+  socket.join(roomId);
+  console.log(`Socket ${socket.id} joined room ${roomId} as ${userId}`);
+
+  try {
+    const roomCollection = await getRoomDetailsCollection();
+    const roomDoc = await roomCollection.findOne({ roomId });
+
+    if (roomDoc) {
+      const existingPlayer = roomDoc.players.find((p) => p.userName === userId);
+
+      if (existingPlayer) {
+        // Update existing player's socketId and set active
+        await roomCollection.updateOne(
+          { roomId, "players.userName": userId },
+          { $set: { "players.$.socketId": socket.id, "players.$.active": 1 } }
+        );
+        console.log(`Updated ${userId} in room ${roomId} with new socketId`);
+      } else {
+        // Add new player to the room
+        await roomCollection.updateOne(
+          { roomId },
+          {
+            $push: {
+              players: { userName: userId, socketId: socket.id, active: 1 },
+            },
+          }
+        );
+        console.log(
+          `Added ${userId} to room ${roomId} with socketId ${socket.id}`
+        );
+      }
+    }
+  } catch (err) {
+    console.error("Error in joinRoom:", err);
+  }
+
+  socket.emit("message", `Joined room ${roomId}`);
+});
+
 
   socket.on("updatePosition", (data) => {
     players[socket.id] = {
@@ -90,28 +125,41 @@ io.on("connection", (socket) => {
     console.log(
       `Player ${data.userId} entered the lobby for room ${data.roomId}`
     );
+
     try {
       const roomCollection = await getRoomDetailsCollection();
       const roomDoc = await roomCollection.findOne({ roomId: data.roomId });
+
       if (roomDoc) {
         const existing = roomDoc.players.find(
           (p) => p.userName === data.userId
         );
-        if (!existing) {
+
+        if (existing) {
+          // Update player's socket ID and set active
+          await roomCollection.updateOne(
+            { roomId: data.roomId, "players.userName": data.userId },
+            { $set: { "players.$.socketId": socket.id, "players.$.active": 1 } }
+          );
+          console.log(
+            `Updated ${data.userId} in room ${data.roomId} (via lobby).`
+          );
+        } else {
+          // Add new player to the room with socketId
           await roomCollection.updateOne(
             { roomId: data.roomId },
-            { $push: { players: { userName: data.userId, active: 1 } } }
+            {
+              $push: {
+                players: {
+                  userName: data.userId,
+                  socketId: socket.id,
+                  active: 1,
+                },
+              },
+            }
           );
           console.log(
             `Added ${data.userId} to room ${data.roomId} (via lobby).`
-          );
-        } else {
-          await roomCollection.updateOne(
-            { roomId: data.roomId, "players.userName": data.userId },
-            { $set: { "players.$.active": 1 } }
-          );
-          console.log(
-            `Set ${data.userId} as active in room ${data.roomId} (via lobby).`
           );
         }
       }
@@ -120,39 +168,45 @@ io.on("connection", (socket) => {
     }
   });
 
+  socket.on("videoStateChange", async (data) => {
+    console.log(data)
+    socket.broadcast.emit("videoChange", data);
+  });
+
   socket.on("exitLobby", async (data) => {
     console.log(
       `Player ${data.userId} exited the lobby for room ${data.roomId}`
     );
   });
 
-  socket.on("offer", (data) => {
-    if (!data.target) return;
-    const targetSocket = io.sockets.sockets.get(data.target);
-    if (targetSocket) {
-      console.log(`Relaying offer from ${socket.id} to ${data.target}`);
-      targetSocket.emit("offer", data);
-    }
-  });
+ socket.on("offer", (data) => {
+   if (!data.target) return;
+   const targetSocket = io.sockets.sockets.get(data.target);
+   if (targetSocket) {
+     console.log(`Relaying offer from ${socket.id} to ${data.target}`);
+     targetSocket.emit("offer", data);
+   }
+ });
 
-  socket.on("answer", (data) => {
-    if (!data.target) return;
-    const targetSocket = io.sockets.sockets.get(data.target);
-    if (targetSocket) {
-      console.log(`Relaying answer from ${socket.id} to ${data.target}`);
-      targetSocket.emit("answer", data);
-    }
-  });
+   socket.on("answer", (data) => {
+     if (!data.target) return;
+     const targetSocket = io.sockets.sockets.get(data.target);
+     if (targetSocket) {
+       console.log(`Relaying answer from ${socket.id} to ${data.target}`);
+       targetSocket.emit("answer", data);
+     }
+   });
 
-  socket.on("iceCandidate", (data) => {
-    if (!data.target) return;
-    const targetSocket = io.sockets.sockets.get(data.target);
-    if (targetSocket) {
-      console.log(`Relaying ICE candidate from ${socket.id} to ${data.target}`);
-      targetSocket.emit("iceCandidate", data);
-    }
-  });
-
+   socket.on("iceCandidate", (data) => {
+     if (!data.target) return;
+     const targetSocket = io.sockets.sockets.get(data.target);
+     if (targetSocket) {
+       console.log(
+         `Relaying ICE candidate from ${socket.id} to ${data.target}`
+       );
+       targetSocket.emit("iceCandidate", data);
+     }
+   });
   // Conference events: When a user enters, add them to "conferenceHall"
   // and update the participant list without creating duplicate entries.
   socket.on("enterConference", async (data) => {
@@ -162,7 +216,6 @@ io.on("connection", (socket) => {
     socket.join("conferenceHall");
     try {
       const roomCollection = await getRoomDetailsCollection();
-      // $addToSet ensures that if an entry with the same fields exists, it won't add a duplicate.
       await roomCollection.updateOne(
         { roomId: data.roomId },
         {
@@ -257,12 +310,14 @@ app.post("/register", async (req, res) => {
     if (existingUser) return res.status(400).send("Username already exists.");
     const hashedPassword = await bcrypt.hash(password, 10);
     await userDetails.insertOne({ userName, email, password: hashedPassword });
-    res.redirect("/login");
+    // Redirect to join room directly after successful registration.
+    res.redirect(`/joinroom?userName=${userName}`);
   } catch (err) {
     console.error("Error during registration:", err);
     res.status(500).send("Internal server error.");
   }
 });
+
 
 app.get("/joinroom", (req, res) => {
   const { userName } = req.query;
@@ -324,12 +379,20 @@ app.get("/api/get-players", async (req, res) => {
     const roomCollection = await getRoomDetailsCollection();
     const room = await roomCollection.findOne({ roomId });
     if (!room) return res.status(404).json({ error: "Room not found" });
-    res.json(room.players);
+
+    const players = room.players.map((player) => ({
+      socketId: player.socketId,
+      userName: player.userName,
+      active: player.active,
+    }));
+
+    res.json(players);
   } catch (err) {
     console.error("Error fetching players:", err);
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
 
 // Save chat message helper
 async function saveChatMessage(roomId, socketId, message, userId) {

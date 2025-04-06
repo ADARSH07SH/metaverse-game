@@ -1,16 +1,18 @@
-
 const config = {
   type: Phaser.AUTO,
-  width: 6400,
-  height: 5800,
+  parent: "game-container",
+  width: window.innerWidth,
+  height: window.innerHeight,
   physics: {
     default: "arcade",
     arcade: { gravity: { y: 0 }, debug: false },
   },
   scene: { preload, create, update },
-  scale: { mode: Phaser.Scale.RESIZE },
+  scale: {
+    mode: Phaser.Scale.FIT,
+    autoCenter: Phaser.Scale.CENTER_BOTH,
+  },
 };
-
 const game = new Phaser.Game(config);
 
 // Global Variables
@@ -178,11 +180,11 @@ function create() {
 
   // Joystick setup
   joystick = this.plugins.get("rexvirtualjoystickplugin").add(this, {
-    x: 2000,
-    y: camera.height + 100,
-    radius: 80,
-    base: this.add.circle(0, 0, 70, 0x888888),
-    thumb: this.add.circle(0, 0, 50, 0xcccccc),
+    x: 1350,
+    y: camera.height - 140,
+    radius: 40,
+    base: this.add.circle(0, 0, 50, 0x888888),
+    thumb: this.add.circle(0, 0, 30, 0xcccccc),
   });
   joystick.base.setVisible(joystickToggle);
   joystick.thumb.setVisible(joystickToggle);
@@ -191,7 +193,6 @@ function create() {
     joystick.base.setVisible(joystickToggle);
     joystick.thumb.setVisible(joystickToggle);
   });
-
 
   sitKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.X);
 
@@ -504,13 +505,7 @@ function update(time) {
     } else {
       if (inConferenceHall) {
         inConferenceHall = false;
-        document
-          .getElementById("exitConferenceBtn")
-          .addEventListener("click", () => {
-            conference.exit();
-            // Also, emit an event to notify the server if necessary:
-            socket.emit("exitConference", { roomId, id: socket.id, userId });
-          });
+        document;
 
         console.log("Exited Conference Hall");
         conference.exit(); // Defined in conference.js
@@ -631,7 +626,6 @@ function update(time) {
         player.anims.play("up", true);
         player.lastDirection = "up";
       }
-    
     } else if (cursors.left.isDown) {
       player.setVelocityX(-speed);
       player.anims.play("left", true);

@@ -216,29 +216,7 @@ footer {
   75% { transform: translateX(-2px); }
 }
 
-.microphone .fa-microphone-slash,
-.videobtn .fa-video-slash {
-  display: none;
-}
-.muted .fa-microphone {
-  display: none;
-}
-.muted .fa-microphone-slash {
-  display: inline;
-}
-.video-off .fa-video {
-  display: none;
-}
-.video-off .fa-video-slash {
-  display: inline;
-}
-.muted,
-.video-off {
-  background-color: red !important;
-}
-.hidden {
-  display: none !important;
-}
+
 
 /* Responsive Styles */
 @media (max-width: 768px) {
@@ -357,22 +335,9 @@ footer {
 .hidden {
     display: none !important;
 }
-.video-avatar {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  font-size: 3em;
-  color: white;
-  border-radius: 8px;
-}
 
 .local-video-container .video-avatar {
-  font-size: 2em;
+  font-size: 5em;
 }
 /* Players List */
 .players-list {

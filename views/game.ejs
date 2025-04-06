@@ -2,7 +2,8 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
     <title>Game Overlay</title>
     <!-- CSS files -->
     <link rel="stylesheet" href="/css/game.css" />
@@ -167,12 +168,7 @@
         endcall.addEventListener("click", function () {
           closeGame();
         });
-        micButton.addEventListener("click", function () {
-          micButton.classList.toggle("muted");
-        });
-        videoButton.addEventListener("click", function () {
-          videoButton.classList.toggle("video-off");
-        });
+       
       });
 
       const playersList = document.querySelector(".players-list");
@@ -199,6 +195,7 @@
               li.classList.add("active-player");
               playersUl.appendChild(li);
             });
+            console.log(players);
         } catch (error) {
           console.error("Error fetching players:", error);
         }
