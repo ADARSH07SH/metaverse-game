@@ -29,6 +29,8 @@ app.set("views", path.join(__dirname, "views"));
 app.engine("ejs", ejsMate);
 app.use(express.static(path.join(__dirname, "public")));
 inject();
+app.use("/assets", express.static(path.join(__dirname, "public/assets")));
+
 
 // In-memory object to track player positions and info
 const players = {};
@@ -178,6 +180,22 @@ socket.on("joinRoom", async (roomId, userId) => {
       `Player ${data.userId} exited the lobby for room ${data.roomId}`
     );
   });
+
+  socket.on("entercafe", (data) => {
+    const targetSocketId = data.id;
+    io.to(targetSocketId).emit("entercafe1", {
+      userId: data.userId,
+      roomId: data.roomId,
+    });
+  });
+
+  socket.on("exitcafe", (data) => {
+    const targetSocketId = data.id;
+    io.to(targetSocketId).emit("exitcafe1", {
+      userId: data.userId,
+    });
+  });
+
 
  socket.on("offer", (data) => {
    if (!data.target) return;

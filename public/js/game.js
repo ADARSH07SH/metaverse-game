@@ -29,13 +29,12 @@ let sitting = false;
 let sitText; // "Press X to Sit/Leave" prompt
 let chairLayer; // The tile layer for chairs (for collision)
 
-// New global arrays for object layers from Tiled:
-let chairObjects = [];
-let textObjects = [];
+
 
 // New global variables for Lobby (from Tiled) and its state:
 let lobbyRegion = null;
 let inLobby = false;
+let incafe = false;
 
 // WebRTC placeholders (if used)
 const callCooldown = {};
@@ -111,7 +110,9 @@ function create() {
   other1Layer.setCollisionByProperty({ collides: true });
   other2Layer.setCollisionByProperty({ collides: true });
   activeLayer.setCollisionByProperty({ collides: true });
+  chairLayer.setCollisionByProperty({ collides: true });
 
+  
   // Parse conference hall region from Tiled objects
   const confLayer = map.getObjectLayer("conference hall");
   if (confLayer && confLayer.objects.length > 0) {
@@ -146,14 +147,18 @@ function create() {
     console.log("Lobby Region:", lobbyRegion);
   }
 
-  // Parse new object layers for chairs and text
-  const chairObjLayer = map.getObjectLayer("chairObj");
-  if (chairObjLayer) {
-    chairObjects = chairObjLayer.objects;
-  }
-  const textObjLayer = map.getObjectLayer("textObj");
-  if (textObjLayer) {
-    textObjects = textObjLayer.objects;
+
+  const cafeLayer = map.getObjectLayer("cafeteria");
+  if (cafeLayer && cafeLayer.objects.length > 0) {
+    // Assuming one lobby region is defined
+    const cafeObj = cafeLayer.objects[0];
+    cafeRegion = new Phaser.Geom.Rectangle(
+      cafeObj.x,
+      cafeObj.y,
+      cafeObj.width,
+      cafeObj.height
+    );
+    console.log("cafe Region:", cafeRegion);
   }
 
   // Create the local player sprite
@@ -351,115 +356,99 @@ function updatePlayerAnimation(sprite, newX, newY) {
 }
 
 function sitOnChair() {
-  // Find the nearest chair object from the chairObjects array
-  let nearestChairObj = null;
+  // Find the nearest chair tile
+  let closestTile = null;
   let minDist = Infinity;
-  chairObjects.forEach((obj) => {
-    const centerX = obj.x + obj.width / 2;
-    const centerY = obj.y + obj.height / 2;
-    const dist = Phaser.Math.Distance.Between(
-      player.x,
-      player.y,
-      centerX,
-      centerY
-    );
-    if (dist < minDist) {
-      minDist = dist;
-      nearestChairObj = { centerX, centerY, properties: obj.properties };
-    }
-  });
+  let chairDirection = "down"; // Default direction
 
-  // If no chair object found, fallback to nearest tile from chairLayer
-  let finalX, finalY;
-  if (nearestChairObj) {
-    finalX = nearestChairObj.centerX;
-    finalY = nearestChairObj.centerY;
-  } else if (chairLayer) {
-    let closestTile = null;
-    let minTileDist = Infinity;
-    chairLayer.layer.data.forEach((row) => {
-      row.forEach((tile) => {
-        if (tile.index !== -1) {
-          const tileCenterX = tile.pixelX + tile.width / 2;
-          const tileCenterY = tile.pixelY + tile.height / 2;
-          const tileDist = Phaser.Math.Distance.Between(
-            player.x,
-            player.y,
-            tileCenterX,
-            tileCenterY
-          );
-          if (tileDist < minTileDist) {
-            minTileDist = tileDist;
-            closestTile = tile;
+  chairLayer.layer.data.forEach((row) => {
+    row.forEach((tile) => {
+      if (tile.index !== -1) {
+        // Get tile center coordinates
+        const tileCenterX = tile.pixelX + tile.width / 2;
+        const tileCenterY = tile.pixelY + tile.height / 2;
+
+        // Calculate distance to player
+        const dist = Phaser.Math.Distance.Between(
+          player.x,
+          player.y,
+          tileCenterX,
+          tileCenterY
+        );
+
+        if (dist < minDist) {
+          minDist = dist;
+          closestTile = tile;
+
+          // Get chair direction from tile properties
+          if (tile.properties) {
+            if (tile.properties.down) chairDirection = "down";
+            else if (tile.properties.left) chairDirection = "left";
+            else if (tile.properties.right) chairDirection = "right";
+            else if (tile.properties.up) chairDirection = "up";
           }
         }
-      });
-    });
-    if (closestTile) {
-      finalX = closestTile.pixelX + closestTile.width / 2;
-      finalY = closestTile.pixelY + closestTile.height / 2;
-    }
-  }
-
-  // Determine the chair direction from properties or fallback to lastDirection
-  let chairDirection = "down";
-  if (nearestChairObj && nearestChairObj.properties) {
-    nearestChairObj.properties.forEach((prop) => {
-      if (prop.name === "chairDirection") {
-        chairDirection = prop.value;
       }
     });
-  } else {
-    chairDirection = player.lastDirection;
-  }
-
-  // Calculate the sitting frame based on chair direction
-  const baseOffset = (spriteNum - 1) * 3;
-  let sitFrame;
-  switch (chairDirection) {
-    case "down":
-      sitFrame = baseOffset + 0;
-      break;
-    case "left":
-      sitFrame = baseOffset + 15;
-      break;
-    case "right":
-      sitFrame = baseOffset + 30;
-      break;
-    case "up":
-      sitFrame = baseOffset + 45;
-      break;
-    default:
-      sitFrame = baseOffset + 0;
-      break;
-  }
-  player.setTexture("dude_sit");
-  player.setFrame(sitFrame);
-  player.setOrigin(0.5, 1);
-  player.setPosition(finalX, finalY);
-  player.y -= 16;
-  sitting = true;
-
-  // Display a nearby text object's message (if any)
-  textObjects.forEach((obj) => {
-    const centerX = obj.x + obj.width / 2;
-    const centerY = obj.y + obj.height / 2;
-    const dist = Phaser.Math.Distance.Between(finalX, finalY, centerX, centerY);
-    if (dist < 50) {
-      let textMsg = "Chair";
-      if (obj.properties) {
-        obj.properties.forEach((prop) => {
-          if (prop.name === "message") {
-            textMsg = prop.value;
-          }
-        });
-      }
-      const chairLabel = this.add
-        .text(finalX, finalY - 40, textMsg, { fontSize: "16px", fill: "#fff" })
-        .setOrigin(0.5);
-      this.time.addEvent({ delay: 3000, callback: () => chairLabel.destroy() });
-    }
   });
+
+  if (closestTile) {
+    const chairCenterX = closestTile.pixelX + closestTile.width / 2;
+    const chairCenterY = closestTile.pixelY + closestTile.height / 2;
+
+    // Calculate sitting frame based on spriteNum and direction
+    const sitFrame = calculateSitFrame(spriteNum, chairDirection);
+
+    player.setTexture("dude_sit");
+    player.setFrame(sitFrame);
+    player.setOrigin(0.5, 0.8);
+    player.setPosition(chairCenterX, chairCenterY - 8);
+    // Optional: Add debug visualization
+    const debugDot = this.add.circle(chairCenterX, chairCenterY, 5, 0xff0000);
+    this.time.delayedCall(1000, () => debugDot.destroy());
+    sitting = true;
+    player.lastDirection = chairDirection;
+  }
+}
+
+function calculateSitFrame(spriteNum, direction) {
+  // Base offsets for each direction
+  const directionOffsets = {
+    down: 0,
+    left: 15,
+    right: 30,
+    up: 45,
+  };
+
+  // Determine which sprite group we're in (groups of 5)
+  const group = Math.floor((spriteNum - 1) / 5);
+  const spriteInGroup = (spriteNum - 1) % 5;
+
+  // Calculate frame number
+  let frame;
+
+  if (group === 0) {
+    // First group (sprites 1-5)
+    frame = directionOffsets[direction] + spriteInGroup * 3;
+  } else {
+    // Subsequent groups (sprites 6-10, 11-15, etc.)
+    frame = 60 * group + directionOffsets[direction] + spriteInGroup * 3;
+  }
+
+  return frame;
+}
+
+// Update the sitting check in update()
+if (Phaser.Input.Keyboard.JustDown(sitKey)) {
+  if (!sitting) {
+    sitOnChair.call(this);
+  } else {
+    // Stand up
+    player.setTexture("dude");
+    player.setOrigin(0.5, 0.5);
+    player.anims.play(player.lastDirection, true);
+    sitting = false;
+  }
 }
 
 function update(time) {
@@ -529,6 +518,23 @@ function update(time) {
         console.log("Exited Lobby");
         // (Optional) Hide lobby UI or trigger an exit event
         socket.emit("exitLobby", { roomId, id: socket.id, userId });
+      }
+    }
+  }
+  if (cafeRegion) {
+    if (Phaser.Geom.Rectangle.Contains(cafeRegion, player.x, player.y)) {
+      if (!incafe) {
+        incafe = true;
+        
+        // (Optional) Trigger lobby-specific behavior/UI here
+        socket.emit("entercafe", { roomId, id: socket.id, userId });
+      }
+    } else {
+      if (incafe) {
+        incafe = false;
+        
+        // (Optional) Hide lobby UI or trigger an exit event
+        socket.emit("exitcafe", { roomId, id: socket.id, userId });
       }
     }
   }

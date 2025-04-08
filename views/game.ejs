@@ -8,6 +8,7 @@
     <!-- CSS files -->
     <link rel="stylesheet" href="/css/game.css" />
     <link rel="stylesheet" href="/css/video.css" />
+    <link rel="stylesheet" href="/css/mobile.css" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
@@ -38,6 +39,7 @@
   </head>
   <body>
     <div id="game-container"></div>
+    <div class="mobileMain"></div>
 
    <div id="conferenceWindow" class="conference-window" style="display: none;">
   <div class="conference-header">
@@ -132,8 +134,11 @@
     <!-- Custom Scripts: Load your custom scripts after libraries -->
     <script src="/js/game-socket.js"></script>
     <script src="/js/conference.js"></script>
+    <script src="/js/mobile.js"></script>
     <script src="/js/game.js"></script>
-   
+   <!-- Add this to your HTML if not already included -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
+
 
     <!-- Inline global variables -->
     <script>
@@ -216,6 +221,13 @@
       window.addEventListener("beforeunload", () => {
         socket.emit("main-disconnect");
       });
+
+      const mobile = document.querySelector(".info");
+
+mobile.addEventListener("click", () => {
+    mobileMain.classList.toggle("active");
+});
+
 
       // Attach event listeners to emoji buttons
       document.addEventListener("DOMContentLoaded", function () {

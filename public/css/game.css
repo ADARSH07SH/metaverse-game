@@ -406,7 +406,7 @@ footer {
 .emoji {
   font-size: 24px;
   cursor: pointer;
-  transition: transform 0.2s ease-in-out;
+  transition: transform 2s ease-in-out;
   display: none;
 }
 .emoji:hover { transform: scale(1.5); }
