@@ -3,6 +3,42 @@ document.addEventListener("DOMContentLoaded", () => {
   const mobileMain = document.querySelector(".mobileMain");
   let audio = new Audio(); // basic audio obj
   let isPlaying = false;
+ const songs = {
+   "1.mp3": {
+     title: "Blinding Lights",
+     artist: "The Weeknd",
+     albumArt:
+       "https://upload.wikimedia.org/wikipedia/en/0/09/The_Weeknd_-_Blinding_Lights.png",
+   },
+   "2.mp3": {
+     title: "Alag Aasman",
+     artist: "Anuv Jain",
+     albumArt:
+       "https://upload.wikimedia.org/wikipedia/en/4/42/Anuv_Jain_-_Alag_Aasman.png",
+   },
+   "3.mp3": {
+     title: "Stay",
+     artist: "The Kid LAROI & Justin Bieber",
+     albumArt:
+       "https://upload.wikimedia.org/wikipedia/en/b/bd/The_Kid_Laroi_and_Justin_Bieber_-_Stay.png",
+   },
+ };
+
+ function playAudio(file) {
+   const { title, artist, albumArt } = songs[file];
+   audio.src = `/assets/audio/${file}`;
+   audio.play();
+   isPlaying = true;
+   playBtn.innerHTML = "❚❚";
+
+   // update UI
+   spotifyOverlay.querySelector(".song-title").textContent = title;
+   spotifyOverlay.querySelector(".artist").textContent = artist;
+   spotifyOverlay.querySelector(
+     ".album-art"
+   ).style.backgroundImage = `url('${albumArt}')`;
+ }
+
 
   if (mobileMain) {
     const phoneFrame = document.createElement("div");
@@ -42,13 +78,19 @@ document.addEventListener("DOMContentLoaded", () => {
           <button class="control-button next">⏭</button>
         </div>
         <div class="song-list">
-          <button class="song-btn" data-song="1.mp3">Song 1</button>
-          <button class="song-btn" data-song="2.mp3">Song 2</button>
-          <button class="song-btn" data-song="3.mp3">Song 3</button>
+          
         </div>
       </div>
     `;
     mobileMain.appendChild(spotifyOverlay);
+       const songList = spotifyOverlay.querySelector(".song-list");
+       Object.entries(songs).forEach(([filename, song]) => {
+         const btn = document.createElement("button");
+         btn.className = "song-btn";
+         btn.dataset.song = filename;
+         btn.textContent = song.title;
+         songList.appendChild(btn);
+       });
 
     const updateTime = () => {
       const now = new Date();
@@ -88,13 +130,20 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
 
-    function playAudio(file) {
-      audio.src = "/assets/audio/1.mp3";
+function playAudio(file) {
+  const { title, artist, albumArt } = songs[file];
+  audio.src = `/assets/audio/${file}`;
+  audio.play();
+  isPlaying = true;
+  playBtn.innerHTML = "❚❚";
 
-      audio.play();
-      playBtn.innerHTML = "❚❚";
-      isPlaying = true;
-    }
+  // Update UI
+  spotifyOverlay.querySelector(".song-title").textContent = title;
+  spotifyOverlay.querySelector(".artist").textContent = artist;
+  spotifyOverlay.querySelector(
+    ".album-art"
+  ).style.backgroundImage = `url('${albumArt}')`;
+}
 
     function stopAudio() {
       audio.pause();

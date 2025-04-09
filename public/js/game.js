@@ -65,6 +65,10 @@ function preload() {
     frameWidth: 16,
     frameHeight: 16,
   });
+  this.load.spritesheet("bot", "/assets/sprite_character/bot.png", {
+    frameWidth:  24,
+    frameHeight: 33,
+  });
   this.load.spritesheet("dude_sit", "/assets/sprite_character/Character2.png", {
     frameWidth: 16,
     frameHeight: 16,
@@ -164,9 +168,26 @@ function create() {
   // Create the local player sprite
   player = this.physics.add
     .sprite(3000, 1650, "dude")
-    .setScale(2.5)
+    .setScale(3)
     .setCollideWorldBounds(true);
+  bot = this.physics.add
+    .sprite(2800, 1650, "bot")
+    .setScale(2.7)
+    .setCollideWorldBounds(true);
+  
   player.lastDirection = "down";
+  
+ this.anims.create({
+   key: "bot_walk",
+   frames: this.anims.generateFrameNumbers("bot", { start: 0, end: 7 }),
+   frameRate: 10,
+   repeat: -1,
+ });
+  
+   this.physics.add.collider(bot, wallLayer);
+
+ 
+  
 
   // Set up collisions
   this.physics.add.collider(player, wallLayer);
@@ -200,6 +221,10 @@ function create() {
   });
 
   sitKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.X);
+ 
+  this.keyB = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.B);
+  botKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.B);
+
 
   cursors = this.input.keyboard.createCursorKeys();
 
@@ -438,20 +463,33 @@ function calculateSitFrame(spriteNum, direction) {
   return frame;
 }
 
-// Update the sitting check in update()
-if (Phaser.Input.Keyboard.JustDown(sitKey)) {
-  if (!sitting) {
-    sitOnChair.call(this);
-  } else {
-    // Stand up
-    player.setTexture("dude");
-    player.setOrigin(0.5, 0.5);
-    player.anims.play(player.lastDirection, true);
-    sitting = false;
-  }
-}
+
 
 function update(time) {
+
+  if (Phaser.Input.Keyboard.JustDown(botKey)) {
+    callBotToYou.call(this);
+  }
+  const dist = Phaser.Math.Distance.Between(bot.x, bot.y, player.x, player.y);
+  if (this.botComing && dist < 100) {
+    // Stop bot
+    bot.body.setVelocity(0);
+    bot.anims.stop();
+    this.botComing = false;
+
+    // Bot “speaks”
+    const talk = this.add
+      .text(bot.x, bot.y - 40, "Hey! Whatcha need?", {
+        font: "16px Arial",
+        fill: "#fff",
+        backgroundColor: "rgba(0,0,0,0.5)",
+      })
+      .setOrigin(0.5);
+
+    // Remove text after 3s
+    this.time.delayedCall(2000, () => talk.destroy());
+  }
+
   // Update remote players smoothly
   Object.keys(otherPlayers).forEach((id) => {
     let remote = otherPlayers[id];
@@ -706,6 +744,16 @@ function update(time) {
       lastUpdateTime = time;
     }
   }
+}
+function callBotToYou() {
+  // Flag so update knows it’s coming
+  this.botComing = true;
+
+  // Start walk anim
+  bot.anims.play("bot_walk", true);
+
+  // Move bot toward player at 200px/sec
+  this.physics.moveToObject(bot, player, 400);
 }
 
 function closeGame() {

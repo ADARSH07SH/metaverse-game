@@ -75,6 +75,7 @@
     background: rgba(0, 0, 0, 0.8);
     border-radius: 15px;
     padding: 15px;
+    
     color: white;
     backdrop-filter: blur(10px);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
@@ -211,4 +212,39 @@
 .now-playing {
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     padding-top: 15px;
+}
+.phone-screen::before {
+    content: '';
+    position: absolute;
+    top: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 140px;
+    height: 20px;
+    background: #000;
+    border-radius: 10px;
+    z-index: 10;
+}
+
+/* Bezels (optional for extra realism) */
+.mobileMain {
+    border: 10px solid #111;
+    border-radius: 45px;
+    
+}
+
+.song-btn {
+  background-color: #1db954;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  margin: 8px 4px;
+  border-radius: 30px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.song-btn:hover {
+  background-color: #1ed760;
 }
