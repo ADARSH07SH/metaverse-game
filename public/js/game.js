@@ -8,10 +8,6 @@ const config = {
     arcade: { gravity: { y: 0 }, debug: false },
   },
   scene: { preload, create, update },
-  scale: {
-    mode: Phaser.Scale.FIT,
-    autoCenter: Phaser.Scale.CENTER_BOTH,
-  },
 };
 const game = new Phaser.Game(config);
 
@@ -29,13 +25,13 @@ let sitting = false;
 let sitText; // "Press X to Sit/Leave" prompt
 let chairLayer; // The tile layer for chairs (for collision)
 
-
-
 // New global variables for Lobby (from Tiled) and its state:
 let lobbyRegion = null;
 let inLobby = false;
 let incafe = false;
-
+let incode = false;
+let inmycom = false;
+let mycomRegions = [];
 // WebRTC placeholders (if used)
 const callCooldown = {};
 const activeCalls = {};
@@ -57,6 +53,37 @@ let wKey, aKey, sKey, dKey, sitKey;
 let cursors;
 
 function preload() {
+  const progressBar = this.add.graphics();
+  const progressText = this.add
+    .text(
+      this.sys.game.config.width / 2,
+      this.sys.game.config.height / 2,
+      "0%",
+      {
+        fontSize: "24px",
+        fill: "#ffffff",
+      }
+    )
+    .setOrigin(0.5);
+
+  this.load.on("progress", (value) => {
+    progressBar.clear();
+    progressBar.fillStyle(0x00ff00, 0.7);
+
+    // 💡 Reduced width (70% of game width)
+    const barWidth = this.sys.game.config.width * 0.5;
+    const barX = (this.sys.game.config.width - barWidth) / 2;
+
+    progressBar.fillRect(
+      barX,
+      this.sys.game.config.height / 2 - 15,
+      barWidth * value,
+      30
+    );
+
+    progressText.setText(`${Math.round(value * 100)}%`);
+  });
+
   // Load assets
   this.load.image("finalTiles", "/assets/main_assets/final.png");
   // Load the map as JSON (exported from Tiled with embedded tilesets and object layers)
@@ -66,7 +93,7 @@ function preload() {
     frameHeight: 16,
   });
   this.load.spritesheet("bot", "/assets/sprite_character/bot.png", {
-    frameWidth:  24,
+    frameWidth: 24,
     frameHeight: 33,
   });
   this.load.spritesheet("dude_sit", "/assets/sprite_character/Character2.png", {
@@ -95,6 +122,18 @@ function createNameLabel(scene, name, x, y) {
 }
 
 function create() {
+  const chatInput = document.getElementById("player-chat");
+
+  const codeEditor = document.getElementById("virtualEditorScreen");
+
+  codeEditor.addEventListener("keydown", function (event) {
+    event.stopPropagation();
+  });
+
+  chatInput.addEventListener("keydown", function (event) {
+    event.stopPropagation();
+  });
+
   // Create the tilemap from the JSON file
   const map = this.make.tilemap({ key: "map" });
   const tileset = map.addTilesetImage("final", "finalTiles");
@@ -116,7 +155,6 @@ function create() {
   activeLayer.setCollisionByProperty({ collides: true });
   chairLayer.setCollisionByProperty({ collides: true });
 
-  
   // Parse conference hall region from Tiled objects
   const confLayer = map.getObjectLayer("conference hall");
   if (confLayer && confLayer.objects.length > 0) {
@@ -130,7 +168,7 @@ function create() {
               obj.width,
               obj.height
             );
-            console.log("Conference Hall Region:", conferenceHallRegion);
+            // console.log("Conference Hall Region:", conferenceHallRegion);
           }
         });
       }
@@ -148,9 +186,8 @@ function create() {
       lobbyObj.width,
       lobbyObj.height
     );
-    console.log("Lobby Region:", lobbyRegion);
+    // console.log("Lobby Region:", lobbyRegion);
   }
-
 
   const cafeLayer = map.getObjectLayer("cafeteria");
   if (cafeLayer && cafeLayer.objects.length > 0) {
@@ -162,7 +199,32 @@ function create() {
       cafeObj.width,
       cafeObj.height
     );
-    console.log("cafe Region:", cafeRegion);
+    // console.log("cafe Region:", cafeRegion);
+  }
+  const codeLayer = map.getObjectLayer("futuristic");
+  if (codeLayer && codeLayer.objects.length > 0) {
+    // Assuming one lobby region is defined
+    const codeObj = codeLayer.objects[0];
+    codeRegion = new Phaser.Geom.Rectangle(
+      codeObj.x,
+      codeObj.y,
+      codeObj.width,
+      codeObj.height
+    );
+    // console.log("code Region:", codeRegion);
+  }
+  const myComLayer = map.getObjectLayer("myCom");
+
+  if (myComLayer && myComLayer.objects.length > 0) {
+    myComLayer.objects.forEach((obj) => {
+      const region = new Phaser.Geom.Rectangle(
+        obj.x,
+        obj.y,
+        obj.width,
+        obj.height
+      );
+      mycomRegions.push(region);
+    });
   }
 
   // Create the local player sprite
@@ -171,23 +233,24 @@ function create() {
     .setScale(3)
     .setCollideWorldBounds(true);
   bot = this.physics.add
-    .sprite(2800, 1650, "bot")
+    .sprite(2600, 1480, "bot")
     .setScale(2.7)
     .setCollideWorldBounds(true);
-  
-  player.lastDirection = "down";
-  
- this.anims.create({
-   key: "bot_walk",
-   frames: this.anims.generateFrameNumbers("bot", { start: 0, end: 7 }),
-   frameRate: 10,
-   repeat: -1,
- });
-  
-   this.physics.add.collider(bot, wallLayer);
 
- 
-  
+  player.lastDirection = "down";
+
+  this.anims.create({
+    key: "bot_walk",
+    frames: this.anims.generateFrameNumbers("bot", { start: 0, end: 7 }),
+    frameRate: 10,
+    repeat: -1,
+  });
+  bot.anims.play("bot_walk", true);
+
+  this.physics.add.collider(bot, wallLayer);
+  this.physics.add.collider(bot, player);
+
+  bot.setImmovable(true);
 
   // Set up collisions
   this.physics.add.collider(player, wallLayer);
@@ -206,8 +269,8 @@ function create() {
 
   // Joystick setup
   joystick = this.plugins.get("rexvirtualjoystickplugin").add(this, {
-    x: 1350,
-    y: camera.height - 140,
+    x: this.cameras.main.width - 100,
+    y: this.cameras.main.height - 100,
     radius: 40,
     base: this.add.circle(0, 0, 50, 0x888888),
     thumb: this.add.circle(0, 0, 30, 0xcccccc),
@@ -221,10 +284,8 @@ function create() {
   });
 
   sitKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.X);
- 
-  this.keyB = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.B);
-  botKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.B);
 
+  botKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.B);
 
   cursors = this.input.keyboard.createCursorKeys();
 
@@ -268,33 +329,35 @@ function create() {
   // Socket events for remote players
   socket.on("updatePosition", (data) => {
     if (data.id === socket.id) return;
-    if (!otherPlayers[data.id]) {
-      const otherSprite = this.physics.add
-        .sprite(data.x, data.y, "dude")
-        .setScale(2.5)
-        .setCollideWorldBounds(true);
-      createPlayerAnimation.call(this, otherSprite, data.spriteNum);
-      otherSprite.setImmovable(true);
-      const nameLabel = createNameLabel(
-        this,
-        data.playerName,
-        otherSprite.x,
-        otherSprite.y
-      );
-      otherSprite.nameLabel = nameLabel;
-      this.add.existing(nameLabel);
-      otherSprite.targetX = data.x;
-      otherSprite.targetY = data.y;
-      otherSprite.prevX = data.x;
-      otherSprite.prevY = data.y;
-      otherPlayers[data.id] = otherSprite;
-      this.physics.add.collider(player, otherSprite);
-      Object.values(otherPlayers).forEach((existingPlayer) => {
-        this.physics.add.collider(otherSprite, existingPlayer);
-      });
-    } else {
-      otherPlayers[data.id].targetX = data.x;
-      otherPlayers[data.id].targetY = data.y;
+    if (data.roomId == roomId) {
+      if (!otherPlayers[data.id]) {
+        const otherSprite = this.physics.add
+          .sprite(data.x, data.y, "dude")
+          .setScale(3)
+          .setCollideWorldBounds(true);
+        createPlayerAnimation.call(this, otherSprite, data.spriteNum);
+        otherSprite.setImmovable(true);
+        const nameLabel = createNameLabel(
+          this,
+          data.playerName,
+          otherSprite.x,
+          otherSprite.y
+        );
+        otherSprite.nameLabel = nameLabel;
+        this.add.existing(nameLabel);
+        otherSprite.targetX = data.x;
+        otherSprite.targetY = data.y;
+        otherSprite.prevX = data.x;
+        otherSprite.prevY = data.y;
+        otherPlayers[data.id] = otherSprite;
+        this.physics.add.collider(player, otherSprite);
+        Object.values(otherPlayers).forEach((existingPlayer) => {
+          this.physics.add.collider(otherSprite, existingPlayer);
+        });
+      } else {
+        otherPlayers[data.id].targetX = data.x;
+        otherPlayers[data.id].targetY = data.y;
+      }
     }
   });
 
@@ -429,8 +492,7 @@ function sitOnChair() {
     player.setOrigin(0.5, 0.8);
     player.setPosition(chairCenterX, chairCenterY - 8);
     // Optional: Add debug visualization
-    const debugDot = this.add.circle(chairCenterX, chairCenterY, 5, 0xff0000);
-    this.time.delayedCall(1000, () => debugDot.destroy());
+
     sitting = true;
     player.lastDirection = chairDirection;
   }
@@ -463,13 +525,11 @@ function calculateSitFrame(spriteNum, direction) {
   return frame;
 }
 
-
-
 function update(time) {
+  const chatInput = document.getElementById("player-chat");
 
-  if (Phaser.Input.Keyboard.JustDown(botKey)) {
-    callBotToYou.call(this);
-  }
+  // Check if chat input is not focused
+
   const dist = Phaser.Math.Distance.Between(bot.x, bot.y, player.x, player.y);
   if (this.botComing && dist < 100) {
     // Stop bot
@@ -563,16 +623,54 @@ function update(time) {
     if (Phaser.Geom.Rectangle.Contains(cafeRegion, player.x, player.y)) {
       if (!incafe) {
         incafe = true;
-        
+
         // (Optional) Trigger lobby-specific behavior/UI here
         socket.emit("entercafe", { roomId, id: socket.id, userId });
       }
     } else {
       if (incafe) {
         incafe = false;
-        
+
         // (Optional) Hide lobby UI or trigger an exit event
         socket.emit("exitcafe", { roomId, id: socket.id, userId });
+      }
+    }
+  }
+  if (codeRegion) {
+    if (Phaser.Geom.Rectangle.Contains(codeRegion, player.x, player.y)) {
+      if (!incode) {
+        incode = true;
+
+        // (Optional) Trigger lobby-specific behavior/UI here
+        socket.emit("entercode", { roomId, id: socket.id, userId });
+      }
+    } else {
+      if (incode) {
+        incode = false;
+
+        // (Optional) Hide lobby UI or trigger an exit event
+        socket.emit("exitcode", { roomId, id: socket.id, userId });
+      }
+    }
+  }
+  if (mycomRegions.length > 0) {
+    let isInRegion = false;
+    for (const region of mycomRegions) {
+      if (Phaser.Geom.Rectangle.Contains(region, player.x, player.y)) {
+        isInRegion = true;
+        break;
+      }
+    }
+
+    if (isInRegion) {
+      if (!inmycom) {
+        inmycom = true;
+        socket.emit("entercode", { roomId, id: socket.id, userId });
+      }
+    } else {
+      if (inmycom) {
+        inmycom = false;
+        socket.emit("exitcode", { roomId, id: socket.id, userId });
       }
     }
   }
@@ -633,16 +731,6 @@ function update(time) {
       sitText = null;
     }
   }
-  if (Phaser.Input.Keyboard.JustDown(sitKey)) {
-    if (nearChair && !sitting) {
-      sitOnChair.call(this, closestChairTile);
-    } else if (sitting) {
-      player.setTexture("dude");
-      player.setOrigin(0.5, 0.5);
-      player.anims.play(player.lastDirection, true);
-      sitting = false;
-    }
-  }
 
   // Local Player Movement using WASD/Joystick
   if (!sitting) {
@@ -691,6 +779,45 @@ function update(time) {
     }
   }
 
+  const codeEditor = document.getElementById("virtualEditorScreen");
+  const editorVisible = codeEditor && !codeEditor.classList.contains("hidden");
+
+  // Completely disable Phaser input when editor is visible
+  if (editorVisible) {
+    // Freeze player and clear inputs
+
+    // Disable Phaser keyboard system
+    this.input.keyboard.enabled = false;
+
+    // Clear any active key states
+    this.input.keyboard.resetKeys();
+
+    // Prevent canvas from capturing focus
+    this.game.canvas.tabIndex = -1;
+    this.game.canvas.style.pointerEvents = "none";
+
+    return;
+  } else {
+    // Re-enable Phaser input when editor is hidden
+    this.input.keyboard.enabled = true;
+    this.game.canvas.style.pointerEvents = "auto";
+  }
+
+  if (document.activeElement !== chatInput) {
+    if (Phaser.Input.Keyboard.JustDown(botKey)) {
+      callBotToYou.call(this);
+    }
+    if (Phaser.Input.Keyboard.JustDown(sitKey)) {
+      if (nearChair && !sitting) {
+        sitOnChair.call(this, closestChairTile);
+      } else if (sitting) {
+        player.setTexture("dude");
+        player.setOrigin(0.5, 0.5);
+        player.anims.play(player.lastDirection, true);
+        sitting = false;
+      }
+    }
+  }
   // WebRTC Call Handling Based on Proximity
   Object.keys(otherPlayers).forEach((id) => {
     const other = otherPlayers[id];
@@ -738,7 +865,8 @@ function update(time) {
         x: player.x,
         y: player.y,
         spriteNum: spriteNum, // defined in your project
-        playerName: userId, // defined in your project
+        playerName: userId,
+        roomId: roomId, // defined in your project
       });
       lastPlayerPosition = { x: player.x, y: player.y };
       lastUpdateTime = time;

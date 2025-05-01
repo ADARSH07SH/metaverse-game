@@ -13,6 +13,7 @@ const {
   getConferenceParticipants,
 } = require("./public/js/mongodb");
 
+
 const app = express();
 const PORT = 8080;
 const httpServer = createServer(app);
@@ -20,8 +21,12 @@ const io = new Server(httpServer, {
   cors: { origin: "*", methods: ["GET", "POST"] },
 });
 io.setMaxListeners(20);
+const axios = require("axios");
+
+const cors = require("cors");
 
 // Middleware & view setup
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
@@ -30,7 +35,6 @@ app.engine("ejs", ejsMate);
 app.use(express.static(path.join(__dirname, "public")));
 inject();
 app.use("/assets", express.static(path.join(__dirname, "public/assets")));
-
 
 // In-memory object to track player positions and info
 const players = {};
@@ -52,57 +56,62 @@ io.on("connection", (socket) => {
     }
     await roomCollection.insertOne({ roomId, players: [] });
     socket.join(roomId);
+    socket.roomId = roomId;
     console.log(`Room ${roomId} created successfully!`);
     socket.emit("message", `Room ${roomId} created successfully!`);
   });
 
-socket.on("joinRoom", async (roomId, userId) => {
-  socket.join(roomId);
-  console.log(`Socket ${socket.id} joined room ${roomId} as ${userId}`);
+  socket.on("joinRoom", async (roomId, userId) => {
+    socket.join(roomId);
+    socket.myRoomId = roomId;
+    console.log(`Socket ${socket.id} joined room ${roomId} as ${userId}`);
 
-  try {
-    const roomCollection = await getRoomDetailsCollection();
-    const roomDoc = await roomCollection.findOne({ roomId });
+    try {
+      const roomCollection = await getRoomDetailsCollection();
+      const roomDoc = await roomCollection.findOne({ roomId });
 
-    if (roomDoc) {
-      const existingPlayer = roomDoc.players.find((p) => p.userName === userId);
+      if (roomDoc) {
+        const existingPlayer = roomDoc.players.find(
+          (p) => p.userName === userId
+        );
 
-      if (existingPlayer) {
-        // Update existing player's socketId and set active
-        await roomCollection.updateOne(
-          { roomId, "players.userName": userId },
-          { $set: { "players.$.socketId": socket.id, "players.$.active": 1 } }
-        );
-        console.log(`Updated ${userId} in room ${roomId} with new socketId`);
-      } else {
-        // Add new player to the room
-        await roomCollection.updateOne(
-          { roomId },
-          {
-            $push: {
-              players: { userName: userId, socketId: socket.id, active: 1 },
-            },
-          }
-        );
-        console.log(
-          `Added ${userId} to room ${roomId} with socketId ${socket.id}`
-        );
+        if (existingPlayer) {
+          // Update existing player's socketId and set active
+          await roomCollection.updateOne(
+            { roomId, "players.userName": userId },
+            { $set: { "players.$.socketId": socket.id, "players.$.active": 1 } }
+          );
+          console.log(`Updated ${userId} in room ${roomId} with new socketId`);
+        } else {
+          // Add new player to the room
+          await roomCollection.updateOne(
+            { roomId },
+            {
+              $push: {
+                players: { userName: userId, socketId: socket.id, active: 1 },
+              },
+            }
+          );
+          console.log(
+            `Added ${userId} to room ${roomId} with socketId ${socket.id}`
+          );
+        }
       }
+    } catch (err) {
+      console.error("Error in joinRoom:", err);
     }
-  } catch (err) {
-    console.error("Error in joinRoom:", err);
-  }
 
-  socket.emit("message", `Joined room ${roomId}`);
-});
-
+    socket.emit("message", `Joined room ${roomId}`);
+  });
 
   socket.on("updatePosition", (data) => {
+    
     players[socket.id] = {
       x: data.x,
       y: data.y,
       spriteNum: data.spriteNum,
       playerName: data.playerName,
+      roomId:data.roomId
     };
     socket.broadcast.emit("updatePosition", {
       id: socket.id,
@@ -110,6 +119,7 @@ socket.on("joinRoom", async (roomId, userId) => {
       y: data.y,
       spriteNum: data.spriteNum,
       playerName: data.playerName,
+      roomId:data.roomId,
     });
   });
 
@@ -171,7 +181,7 @@ socket.on("joinRoom", async (roomId, userId) => {
   });
 
   socket.on("videoStateChange", async (data) => {
-    console.log(data)
+    console.log(data);
     socket.broadcast.emit("videoChange", data);
   });
 
@@ -193,38 +203,84 @@ socket.on("joinRoom", async (roomId, userId) => {
     const targetSocketId = data.id;
     io.to(targetSocketId).emit("exitcafe1", {
       userId: data.userId,
+      roomId: data.roomId,
     });
   });
 
+  socket.on("entercode", (data) => {
+    const targetSocketId = data.id;
+    console.log(targetSocketId);
+    io.to(targetSocketId).emit("entercode1", {
+      userId: data.userId,
+      roomId: data.roomId,
+    });
+  });
 
- socket.on("offer", (data) => {
-   if (!data.target) return;
-   const targetSocket = io.sockets.sockets.get(data.target);
-   if (targetSocket) {
-     console.log(`Relaying offer from ${socket.id} to ${data.target}`);
-     targetSocket.emit("offer", data);
-   }
+  socket.on("exitcode", (data) => {
+    
+    const targetSocketId = data.id;
+   
+    io.to(targetSocketId).emit("exitcode1", {
+      userId: data.userId,
+    });
+  });
+
+  socket.on("editor-change", ({ roomId, code }) => {
+    console.log(code);
+    console.log(roomId);
+    
+    let res = socket.broadcast.emit("editor-update", { roomId, code });
+    
  });
 
-   socket.on("answer", (data) => {
-     if (!data.target) return;
-     const targetSocket = io.sockets.sockets.get(data.target);
-     if (targetSocket) {
-       console.log(`Relaying answer from ${socket.id} to ${data.target}`);
-       targetSocket.emit("answer", data);
-     }
-   });
+ socket.on("join-editor-room", (roomId) => {
+   socket.join(roomId);
+   console.log(`${socket.id} joined editor room: ${roomId}`);
+ });
+  
+  socket.on("offer", (data) => {
+    if (!data.target) return;
+    const targetSocket = io.sockets.sockets.get(data.target);
+    if (targetSocket) {
+      console.log(`Relaying offer from ${socket.id} to ${data.target}`);
+      targetSocket.emit("offer", data);
+    }
+  });
 
-   socket.on("iceCandidate", (data) => {
-     if (!data.target) return;
-     const targetSocket = io.sockets.sockets.get(data.target);
-     if (targetSocket) {
-       console.log(
-         `Relaying ICE candidate from ${socket.id} to ${data.target}`
-       );
-       targetSocket.emit("iceCandidate", data);
-     }
-   });
+  socket.on("answer", (data) => {
+    if (!data.target) return;
+    const targetSocket = io.sockets.sockets.get(data.target);
+    if (targetSocket) {
+      console.log(`Relaying answer from ${socket.id} to ${data.target}`);
+      targetSocket.emit("answer", data);
+    }
+  });
+
+  socket.on("iceCandidate", (data) => {
+    if (!data.target) return;
+    const targetSocket = io.sockets.sockets.get(data.target);
+    if (targetSocket) {
+      console.log(`Relaying ICE candidate from ${socket.id} to ${data.target}`);
+      targetSocket.emit("iceCandidate", data);
+    }
+  });
+
+
+  socket.on("initiate-private-call", ({ to, from, callerName }) => {
+    console.log(`${callerName} is calling ${to}`);
+    io.to(to).emit("incoming-private-call", {
+      from,
+      callerName,
+    });
+  });
+
+  socket.on("accept-private-call", ({ from, to }) => {
+    io.to(from).emit("call-accepted", { from: to });
+  });
+
+  socket.on("reject-private-call", ({ from, reason }) => {
+    io.to(from).emit("call-rejected", { from: socket.id, reason });
+  });
   // Conference events: When a user enters, add them to "conferenceHall"
   // and update the participant list without creating duplicate entries.
   socket.on("enterConference", async (data) => {
@@ -265,7 +321,6 @@ socket.on("joinRoom", async (roomId, userId) => {
       console.error("Error in exitConference:", err);
     }
   });
-
 
   // Disconnect handling
   const handleDisconnect = async () => {
@@ -335,7 +390,6 @@ app.post("/register", async (req, res) => {
     res.status(500).send("Internal server error.");
   }
 });
-
 
 app.get("/joinroom", (req, res) => {
   const { userName } = req.query;
@@ -411,7 +465,6 @@ app.get("/api/get-players", async (req, res) => {
   }
 });
 
-
 // Save chat message helper
 async function saveChatMessage(roomId, socketId, message, userId) {
   const chatCollection = await playerChat();
@@ -441,6 +494,37 @@ app.get("/api/conference-participants", async (req, res) => {
   } catch (err) {
     console.error("Error fetching conference participants:", err);
     res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.post("/ask", async (req, res) => {
+  const { prompt } = req.body;
+
+  try {
+    const response = await axios.post(
+      "https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-beta",
+      {
+        inputs: prompt,
+        parameters: {
+          max_new_tokens: 10,
+          temperature: 0.7,
+          top_p: 0.9,
+          repetition_penalty: 1.2,
+        },
+      },
+      {
+        headers: {
+          Authorization: `Bearer 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`,
+        },
+      }
+    );
+
+    const botReply =
+      response.data[0]?.generated_text || "Bot had nothing to say 😅";
+    res.json({ reply: botReply });
+  } catch (err) {
+    console.error("BOT ERR:", err.message);
+    res.status(500).json({ reply: "Bot is sleeping rn 🥱" });
   }
 });
 

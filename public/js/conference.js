@@ -1,7 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("DOM fully loaded. Initializing WebRTC conference module...");
-
-  // DOM Elements
+  
   const conferenceWindow = document.getElementById("conferenceWindow");
   const remoteVideosContainer = document.getElementById("remote-videos");
   const localVideoElem = document.getElementById("local-video");
@@ -416,3 +414,5 @@ document.addEventListener("DOMContentLoaded", () => {
 
   console.log("✅ Conference module ready → use conference.enter() to join.");
 });
+
+

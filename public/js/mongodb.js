@@ -9,7 +9,7 @@ const client = new MongoClient(uri);
 const getUserDetailsCollection = async () => {
   try {
     await client.connect();
-    console.log(`connected to the ${dbName} database`);
+    // console.log(`connected to the ${dbName} database`);
       const userDetails = await client.db("metaverse").collection("userId");
       return userDetails;
   } catch (err) {
@@ -19,7 +19,7 @@ const getUserDetailsCollection = async () => {
 const getRoomDetailsCollection = async () => {
   try {
     await client.connect();
-    console.log(`connected to the ${dbName} database`);
+    // console.log(`connected to the ${dbName} database`);
       const roomDetails = await client.db("metaverse").collection("roomId");
       return roomDetails;
   } catch (err) {
@@ -29,7 +29,7 @@ const getRoomDetailsCollection = async () => {
 const playerChat = async () => {
   try {
     await client.connect();
-    console.log(`connected to the ${dbName} database`);
+    // console.log(`connected to the ${dbName} database`);
       const roomDetails = await client.db("metaverse").collection("chat");
       return roomDetails;
   } catch (err) {

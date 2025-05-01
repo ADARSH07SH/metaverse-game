@@ -1,0 +1,110 @@
+#virtualEditorScreen {
+  position: fixed;
+  top: 3%;
+  left: 10%;
+  width: 80%;
+  height: 80%;
+  background: #111;
+  color: white;
+  z-index: 9999;
+  border: 2px solid green;
+  border-radius: 12px;
+  padding: 10px;
+  box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+}
+
+.editor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #222;
+  padding: 5px 10px;
+  border-bottom: 1px solid #333;
+}
+
+.hidden {
+  display: none !important;
+}
+
+#game-container {
+  z-index: 1;
+}
+
+.coding i {
+  color: white;
+  transition: 0.1s;
+}
+
+.coding i.activered {
+  color: limegreen;
+  transform: scale(1.2);
+}
+
+.notesEditor {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+  width: 30%;
+  height: 65%;
+  padding: 2rem;
+  background: #fdf6e3;
+  background-image:
+    repeating-linear-gradient(to bottom, #ccc 0px, #ccc 1px, transparent 1px, transparent 30px),
+    linear-gradient(to right, #d33 1px, transparent 1px);
+  background-position: 50px 0;
+  background-size: 100% 30px, 100% 100%;
+  box-sizing: border-box;
+  font-family: 'Dancing Script', cursive;
+  line-height: 30px;
+  overflow: hidden;
+  white-space: pre-wrap;
+  color: black;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+}
+
+.notesContent {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  outline: none;
+  color: black;
+  font-family: 'Dancing Script', cursive;
+  line-height: 30px;
+  font-size: 18px;
+  white-space: normal; /* This fixes space/line behavior */
+}
+
+
+.closeBtn {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  background: #d33;
+  color: white;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  border-radius: 5px;
+  padding: 5px 10px;
+  z-index: 1;
+}
+
+
+#adOverlay {
+  position: absolute;
+  top: 20px; /* Distance from top of the screen */
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999; /* Above everything else */
+  width: 400px;
+  height: 200px;
+  background: white;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

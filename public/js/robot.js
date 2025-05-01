@@ -1,5 +1,7 @@
 let text = `hi ${userId} i am your personal bot`
 let text2 = "to call me press B";
+let text3="for any query ask me in the chat box by slecting bot"
+
 
 function textToSpeech(text, cb) {
   const speech = new SpeechSynthesisUtterance();
@@ -19,4 +21,8 @@ function textToSpeech(text, cb) {
 // One after another
 textToSpeech(text, () => {
   textToSpeech(text2);
+  textToSpeech(text3);
 });
+
+
+

@@ -2,13 +2,18 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
 
     <title>Game Overlay</title>
     <!-- CSS files -->
     <link rel="stylesheet" href="/css/game.css" />
     <link rel="stylesheet" href="/css/video.css" />
     <link rel="stylesheet" href="/css/mobile.css" />
+    <link rel="stylesheet" href="/css/codeEditor.css" />
+    <link rel="stylesheet" href="/css/callmini.css" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
@@ -16,18 +21,21 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     />
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap" rel="stylesheet">
 
+    <script src="/js/codeEditor.js"></script>
     <!-- Phaser and related plugins -->
     <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.min.js"></script>
     <script src="https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexvirtualjoystickplugin.min.js"></script>
-    
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
     <!-- Load Mediasoup Client UMD Build from jsDelivr -->
     <script src="https://cdn.jsdelivr.net/npm/mediasoup-client/umd/mediasoupClient.min.js"></script>
     <script>
       console.log("window.mediasoupClient:", window.mediasoupClient);
       // You should see an object with a Device property.
     </script>
-    
+
     <!-- Socket.io -->
     <script src="/socket.io/socket.io.js"></script>
 
@@ -41,7 +49,7 @@
     <div id="game-container"></div>
     <div class="mobileMain"></div>
 
-   <div id="conferenceWindow" class="conference-window" style="display: none;">
+    <div id="conferenceWindow" class="conference-window" style="display: none;">
   <div class="conference-header">
     <h2>Conference Meeting - <%= userId %></h2>
   </div>
@@ -54,12 +62,12 @@
   </div>
 </div>
   <button id="exitConferenceBtn">Exit Conference</button>
-</div>
-
+</div> 
     <!-- Chatbox and Players List -->
     <div class="chatbox">
       <div class="chat">
         <input type="text" id="player-chat" name="playerChat" />
+        <button class="AI" id="AI">BOT</button>
         <button type="submit" class="player-chat-submit">Send</button>
       </div>
       <div id="chat-messages"></div>
@@ -72,8 +80,50 @@
 
     <div id="version"></div>
 
-    <!-- Hidden gamedata element for passing room and user data -->
-    <div id="gamedata" data-room-id="<%= roomId %>" data-user-id="<%= userId %>"></div>
+    <!-- Code Editor Popup -->
+    <div id="virtualEditorScreen" class="hidden">
+      <div class="editor-header">
+        <h3>Collab Editor</h3>
+        <button id="closeEditorBtn">❌</button>
+      </div>
+      <div id="editorContainer" style="height: 90%; width: 100%"></div>
+    </div>
+
+    <!-- Ad Overlay -->
+     <div id="cookie-consent">
+  <p>We use cookies for ads. <button id="accept-cookies">Accept</button></p>
+</div>
+
+<script>
+document.getElementById('accept-cookies').addEventListener('click', () => {
+  // Store consent
+  localStorage.setItem('cookieConsent', 'true');
+  // Reload ads
+  (adsbygoogle = window.adsbygoogle || []).push({});
+});
+</script>
+
+<div id="adOverlay">
+ <ins class="adsbygoogle"
+     style="display:inline-block;width:300px;height:150px"
+     data-ad-client="ca-pub-3866701441901817"
+     data-ad-slot="8795948841"></ins>
+</div>
+
+
+<div id="notesEditor" class="notesEditor">
+  <button class="closeBtn" onclick="document.getElementById('notesEditor').style.display='none'">✖</button>
+  <div id="notesContent" class="notesContent" contenteditable="true">
+    Start typing your notes here...
+  </div>
+</div>
+
+    
+    <div
+      id="gamedata"
+      data-room-id="<%= roomId %>"
+      data-user-id="<%= userId %>"
+    ></div>
 
     <!-- Hidden Button for Game.js if needed -->
     <button id="showButton" style="display: none"></button>
@@ -107,7 +157,10 @@
           </div>
           <div class="endcall">
             <a id="callEndLink">
-              <i class="fa-solid fa-phone fa-rotate-by" style="--fa-rotate-angle: 135deg"></i>
+              <i
+                class="fa-solid fa-phone fa-rotate-by"
+                style="--fa-rotate-angle: 135deg"
+              ></i>
             </a>
           </div>
         </div>
@@ -118,8 +171,11 @@
           <div class="gamepad">
             <i class="fa-solid fa-gamepad"></i>
           </div>
+          <div class="coding">
+            <i class="fa-solid fa-terminal"></i>
+          </div>
           <div class="info">
-            <i class="fa-solid fa-expand"></i>
+            <i class="fa-solid fa-mobile"></i>
           </div>
           <div class="people">
             <i class="fa-solid fa-users"></i>
@@ -137,15 +193,35 @@
     <script src="/js/mobile.js"></script>
     <script src="/js/game.js"></script>
     <script src="/js/robot.js"></script>
-   <!-- Add this to your HTML if not already included -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
-
+   
+    <script src="/js/notes.js"></script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3866701441901817"
+     crossorigin="anonymous"></script>
+    <!-- Add this to your HTML if not already included -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
 
     <!-- Inline global variables -->
     <script>
-     let roomId = "<%= roomId %>";
+
+       
+document.addEventListener('DOMContentLoaded', () => {
+  (adsbygoogle = window.adsbygoogle || []).push({});
+});
+
+
+      let roomId = "<%= roomId %>";
       let userId = "<%= userId %>";
       let spriteNum = "<%= sprite %>";
+
+      document.addEventListener("click", function (e) {
+        const chatbox = document.querySelector(".chatbox");
+        const chatInput = document.getElementById("player-chat");
+
+        // If clicked outside the chatbox, blur the input
+        if (!chatbox.contains(e.target)) {
+          chatInput.blur();
+        }
+      });
 
       console.log("Player name:", userId);
       console.log("Joined room:", roomId);
@@ -162,7 +238,9 @@
         const now = new Date();
         const hours = now.getHours().toString().padStart(2, "0");
         const minutes = now.getMinutes().toString().padStart(2, "0");
-        document.getElementById("timeDisplay").innerText = `${hours}:${minutes}`;
+        document.getElementById(
+          "timeDisplay"
+        ).innerText = `${hours}:${minutes}`;
       }
       updateTime();
       setInterval(updateTime, 1000);
@@ -174,12 +252,26 @@
         endcall.addEventListener("click", function () {
           closeGame();
         });
-       
       });
 
       const playersList = document.querySelector(".players-list");
       const playersUl = document.getElementById("players-ul");
       const people = document.querySelector(".people");
+
+      const coding = document.querySelector(".coding");
+      let codingicon = document.querySelector(".coding i");
+
+        const closeBtn = document.getElementById("closeEditorBtn");
+  const editorScreen = document.getElementById("virtualEditorScreen");
+
+      coding.addEventListener("click", function () {
+        console.log("clicked");
+        codingicon.classList.toggle("activered");
+        editorScreen.classList.toggle("hidden")
+      });
+
+
+
 
       people.addEventListener("click", async function () {
         playersList.classList.toggle("hidden");
@@ -188,35 +280,52 @@
         }
       });
 
-      async function fetchActivePlayers() {
-        try {
-          const response = await fetch(`/api/get-players?roomId=${roomId}`);
-          const players = await response.json();
-          playersUl.innerHTML = "";
-          players
-            .filter(player => player.active === 1)
-            .forEach(player => {
-              const li = document.createElement("li");
-              li.textContent = player.userName;
-              li.classList.add("active-player");
-              playersUl.appendChild(li);
-            });
-            console.log(players);
-        } catch (error) {
-          console.error("Error fetching players:", error);
-        }
-      }
+     async function fetchActivePlayers() {
+  try {
+    const response = await fetch(`/api/get-players?roomId=${roomId}`);
+    const players = await response.json();
+    playersUl.innerHTML = "";
+
+    players
+      .filter(player => player.active === 1 && player.socketId !== socket.id)
+      .forEach(player => {
+        const li = document.createElement("li");
+        li.textContent = player.userName;
+        li.classList.add("active-player");
+
+        // create the call button
+        const callBtn = document.createElement("button");
+        callBtn.textContent = " 📞";
+        callBtn.title = `Call ${player.userName}`;
+        callBtn.addEventListener("click", () => {
+          // your private‑call stub
+          initiatePrivateCall(player.socketId, player.userName);
+        });
+
+        li.appendChild(callBtn);
+        playersUl.appendChild(li);
+      });
+
+    console.log(players);
+  } catch (error) {
+    console.error("Error fetching players:", error);
+  }
+}
 
       document.querySelector(".chat i").addEventListener("click", function () {
         document.querySelector(".chatbox").classList.toggle("hidden");
       });
 
-      document.querySelector(".gamepad i").addEventListener("click", function () {
-        document.getElementById("showButton").click();
-      });
+      document
+        .querySelector(".gamepad i")
+        .addEventListener("click", function () {
+          document.getElementById("showButton").click();
+        });
 
       document.addEventListener("DOMContentLoaded", function () {
-        document.getElementById("callEndLink").href = `/joinroom?userName=${encodeURIComponent(userId)}`;
+        document.getElementById(
+          "callEndLink"
+        ).href = `/joinroom?userName=${encodeURIComponent(userId)}`;
       });
 
       window.addEventListener("beforeunload", () => {
@@ -225,10 +334,16 @@
 
       const mobile = document.querySelector(".info");
 
-mobile.addEventListener("click", () => {
-    mobileMain.classList.toggle("active");
-});
+      mobile.addEventListener("click", () => {
+        mobileMain.classList.toggle("active");
+        const infoIcon = document.querySelector(".info i");
 
+        if (mobileMain.classList.contains("active")) {
+          infoIcon.style.color = "red";
+        } else {
+          infoIcon.style.color = "";
+        }
+      });
 
       // Attach event listeners to emoji buttons
       document.addEventListener("DOMContentLoaded", function () {
@@ -245,7 +360,6 @@ mobile.addEventListener("click", () => {
           });
         });
       });
-    
     </script>
   </body>
 </html>

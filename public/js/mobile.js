@@ -1,6 +1,72 @@
+let game101 = 0;
+let phaserGame = null;
 
+class Example extends Phaser.Scene {
+  constructor() {
+    super();
+    this.move = 0;
+    this.x = 0;
+    this.y = 0;
+  }
+
+  preload() {
+    const progressBar = this.add.graphics();
+    const progressText = this.add
+      .text(
+        this.sys.game.config.width / 2,
+        this.sys.game.config.height / 2,
+        "0%",
+        {
+          fontSize: "24px",
+          fill: "#ffffff",
+        }
+      )
+      .setOrigin(0.5);
+
+    this.load.on("progress", (value) => {
+      progressBar.clear();
+      progressBar.fillStyle(0x00ff00, 0.7);
+
+      // 💡 Reduced width (70% of game width)
+      const barWidth = this.sys.game.config.width * 0.5;
+      const barX = (this.sys.game.config.width - barWidth) / 2;
+
+      progressBar.fillRect(
+        barX,
+        this.sys.game.config.height / 2 - 15,
+        barWidth * value,
+        30
+      );
+
+      progressText.setText(`${Math.round(value * 100)}%`);
+    });
+   
+    this.load.image("sky", "/assets/minigame1/deepblue.png");
+    
+    this.load.image("ball", "/assets/minigame1/ball.png");
+  }
+
+  create() {
+    this.add.image(0, 0, "sky").setOrigin(0);
+    this.group = this.add.group({ key: "ball", frameQuantity: 128 });
+
+    this.input.on("pointermove", (pointer) => {
+      this.x = pointer.x;
+      this.y = pointer.y;
+    });
+  }
+
+  update(time, delta) {
+    this.move += delta;
+    if (this.move > 6) {
+      Phaser.Actions.ShiftPosition(this.group.getChildren(), this.x, this.y);
+      this.move = 0;
+    }
+  }
+}
+
+const mobileMain = document.querySelector(".mobileMain");
 document.addEventListener("DOMContentLoaded", () => {
-  const mobileMain = document.querySelector(".mobileMain");
   let audio = new Audio(); // basic audio obj
   let isPlaying = false;
  const songs = {
@@ -46,17 +112,27 @@ document.addEventListener("DOMContentLoaded", () => {
     phoneFrame.innerHTML = `
       <div class="phone-screen">
         <div class="status-bar">
-          <span id="current-time">${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
+          <span id="current-time">${new Date().toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          })}</span>
         </div>
         <div class="app-container">
           <div class="app-icon" id="spotify-app">
             <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Spotify_logo_without_text.svg/2048px-Spotify_logo_without_text.svg.png" alt="Spotify">
           </div>
+          <div class="gamebtn1 app-icon" id="gamebtn1"><i class="fa-solid fa-gamepad fa-3x"></i>      </div>
         </div>
       </div>
     `;
     mobileMain.appendChild(phoneFrame);
-
+    const gameOverlay1 = document.createElement("div");
+    gameOverlay1.className = "gameoverlay1";
+    gameOverlay1.style.display = "none";
+    gameOverlay1.innerHTML = `
+    
+    <div class="game101">
+    </div>`;
     const spotifyOverlay = document.createElement("div");
     spotifyOverlay.className = "spotify-overlay";
     spotifyOverlay.style.display = "none";
@@ -82,6 +158,7 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
       </div>
     `;
+    mobileMain.appendChild(gameOverlay1);
     mobileMain.appendChild(spotifyOverlay);
        const songList = spotifyOverlay.querySelector(".song-list");
        Object.entries(songs).forEach(([filename, song]) => {
@@ -104,6 +181,33 @@ document.addEventListener("DOMContentLoaded", () => {
     setInterval(updateTime, 60000);
 
     const spotifyApp = phoneFrame.querySelector("#spotify-app");
+
+
+
+    const gamebtn1 = phoneFrame.querySelector("#gamebtn1");
+
+  
+   gamebtn1.addEventListener("click", () => {
+     game101 = game101 === 0 ? 101 : 0;
+     const gameHidden = gameOverlay1.style.display === "none";
+     gameOverlay1.style.display = gameHidden ? "block" : "none";
+
+     if (gameHidden && !phaserGame) {
+       const config = {
+         type: Phaser.AUTO,
+         width:280,
+         height: 390,
+         parent: gameOverlay1, 
+         scene: Example,
+       };
+       phaserGame = new Phaser.Game(config);
+     } else if (!gameHidden && phaserGame) {
+       phaserGame.destroy(true);
+       phaserGame = null;
+       gameContainer.innerHTML = ""; // clear canvas
+     }
+   });
+
     spotifyApp.addEventListener("click", () => {
       const isHidden = spotifyOverlay.style.display === "none";
       spotifyOverlay.style.display = isHidden ? "block" : "none";
@@ -155,15 +259,18 @@ function playAudio(file) {
 });
 
 // socket events
-const mobileMain = document.querySelector(".mobileMain");
+
 mobileMain.style.display = "none";
+const infoIcon = document.querySelector(".info i");
 
 socket.on("entercafe1", () => {
   console.log("enter");
   mobileMain.classList.add("active");
+  if (infoIcon) infoIcon.style.color = "red"; // ✅ set color when active
 });
 
 socket.on("exitcafe1", () => {
   console.log("exit");
   mobileMain.classList.remove("active");
+  if (infoIcon) infoIcon.style.color = ""; // ✅ reset color
 });

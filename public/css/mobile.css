@@ -81,6 +81,24 @@
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     animation: fadeInUp 0.3s ease;
 }
+/* Spotify overlay styles */
+.gameoverlay1 {
+
+    height:60%;
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 85%;
+    background: rgba(0, 0, 0, 0.8);
+   
+    
+    
+    color: white;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    animation: fadeInUp 0.3s ease;
+}
 
 @keyframes fadeInUp {
     0% { opacity: 0; transform: translateX(-50%) translateY(10px); }
