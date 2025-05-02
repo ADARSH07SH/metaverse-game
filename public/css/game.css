@@ -1,4 +1,4 @@
-/* General Styling */
+
 html,
 body {
   overflow: hidden;
@@ -9,8 +9,6 @@ body {
   color: #eee;
   font-family: Arial, sans-serif;
 }
-
-/* Video Overlay - Top Right (Normal Mode) */
 .video-overlay {
   position: absolute;
   top: 10px;
@@ -399,7 +397,7 @@ footer {
   }
 }
 
-/* Reaction and Emoji Bar Styles */
+
 .reaction {
   position: relative;
   display: inline-block;

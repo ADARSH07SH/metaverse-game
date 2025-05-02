@@ -1,7 +1,7 @@
 let editor;
 let isMonacoLoaded = false;
 let currentRoomId = null;
-const lastCodeByRoom = {}; // 💾 roomId -> last code state
+const lastCodeByRoom = {}; 
 
 function loadMonacoAndInit(roomId) {
   currentRoomId = roomId;
@@ -39,16 +39,16 @@ function initMonaco(roomId) {
 
   if (editor) return;
 
-  editor = monaco.editor.create(container, {
-    value: lastCodeByRoom[roomId] || "// Start typing code...\n", // 👈 Load last code if available
-    language: "javascript",
-    theme: "vs-dark",
-    automaticLayout: true,
-  });
+   editor = monaco.editor.create(container, {
+     value: lastCodeByRoom[roomId] || "// Start typing code...\n", 
+     language: "javascript",
+     theme: "vs-dark",
+     automaticLayout: true,
+   });
 
   editor.onDidChangeModelContent(() => {
     const code = editor.getValue();
-    lastCodeByRoom[roomId] = code; // 💾 Save code to memory
+    lastCodeByRoom[roomId] = code; 
     if (inmycom == true){
     console.log("mycode")
     }
@@ -61,7 +61,7 @@ function initMonaco(roomId) {
   editor.focus();
 }
 
-// DOM Ready
+
 window.addEventListener("DOMContentLoaded", () => {
   const closeBtn = document.getElementById("closeEditorBtn");
   const editorScreen = document.getElementById("virtualEditorScreen");
@@ -73,9 +73,9 @@ window.addEventListener("DOMContentLoaded", () => {
 
   closeBtn.addEventListener("click", () => {
     editorScreen.classList.add("hidden");
-    // Optional: destroy editor if you want fresh reload next time
+    
     if (editor) {
-      lastCodeByRoom[currentRoomId] = editor.getValue(); // Store before destroy
+      lastCodeByRoom[currentRoomId] = editor.getValue(); 
       editor.dispose();
       editor = null;
     }
@@ -95,7 +95,7 @@ notes.classList.remove("hidden")
   socket.on("exitcode1", () => {
     console.log("📤 exitcode1 received");
     if (editor) {
-      lastCodeByRoom[currentRoomId] = editor.getValue(); // 💾 Save on exit
+      lastCodeByRoom[currentRoomId] = editor.getValue(); 
       editor.dispose();
       editor = null;
     }
@@ -113,7 +113,7 @@ notes.classList.remove("hidden")
         const pos = editor.getPosition();
         editor.setValue(code);
         editor.setPosition(pos);
-        lastCodeByRoom[incomingRoomId] = code; // 💾 Sync from others
+        lastCodeByRoom[incomingRoomId] = code; 
       }
     }
   });

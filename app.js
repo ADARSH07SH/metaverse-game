@@ -1,4 +1,4 @@
-// app.js
+
 const express = require("express");
 const ejsMate = require("ejs-mate");
 const path = require("path");
@@ -25,7 +25,7 @@ const axios = require("axios");
 
 const cors = require("cors");
 
-// Middleware & view setup
+
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -36,16 +36,16 @@ app.use(express.static(path.join(__dirname, "public")));
 inject();
 app.use("/assets", express.static(path.join(__dirname, "public/assets")));
 
-// In-memory object to track player positions and info
+
 const players = {};
 
-// -------------------
-// SOCKET.IO EVENTS
-// -------------------
+
+
+
 io.on("connection", (socket) => {
   console.log(`Socket connected: ${socket.id}`);
 
-  // Room management
+  
   socket.on("createRoom", async (roomId) => {
     const roomCollection = await getRoomDetailsCollection();
     const existingRoom = await roomCollection.findOne({ roomId });
@@ -76,14 +76,14 @@ io.on("connection", (socket) => {
         );
 
         if (existingPlayer) {
-          // Update existing player's socketId and set active
+          
           await roomCollection.updateOne(
             { roomId, "players.userName": userId },
             { $set: { "players.$.socketId": socket.id, "players.$.active": 1 } }
           );
           console.log(`Updated ${userId} in room ${roomId} with new socketId`);
         } else {
-          // Add new player to the room
+          
           await roomCollection.updateOne(
             { roomId },
             {
@@ -123,7 +123,7 @@ io.on("connection", (socket) => {
     });
   });
 
-  // Chat event
+  
   socket.on("player-chat", async (data) => {
     console.log(`Chat from ${data.userId}: ${data.message}`);
     io.to(data.roomId).emit("player-chat", data);
@@ -132,7 +132,7 @@ io.on("connection", (socket) => {
     await saveChatMessage(data.roomId, socket.id, data.message, data.userId);
   });
 
-  // Lobby events
+  
   socket.on("enterLobby", async (data) => {
     console.log(
       `Player ${data.userId} entered the lobby for room ${data.roomId}`
@@ -148,7 +148,7 @@ io.on("connection", (socket) => {
         );
 
         if (existing) {
-          // Update player's socket ID and set active
+          
           await roomCollection.updateOne(
             { roomId: data.roomId, "players.userName": data.userId },
             { $set: { "players.$.socketId": socket.id, "players.$.active": 1 } }
@@ -157,7 +157,7 @@ io.on("connection", (socket) => {
             `Updated ${data.userId} in room ${data.roomId} (via lobby).`
           );
         } else {
-          // Add new player to the room with socketId
+          
           await roomCollection.updateOne(
             { roomId: data.roomId },
             {
@@ -281,8 +281,8 @@ io.on("connection", (socket) => {
   socket.on("reject-private-call", ({ from, reason }) => {
     io.to(from).emit("call-rejected", { from: socket.id, reason });
   });
-  // Conference events: When a user enters, add them to "conferenceHall"
-  // and update the participant list without creating duplicate entries.
+  
+  
   socket.on("enterConference", async (data) => {
     console.log(
       `Player ${data.userId} with socket id ${data.id} entered the conference hall`
@@ -322,7 +322,7 @@ io.on("connection", (socket) => {
     }
   });
 
-  // Disconnect handling
+  
   const handleDisconnect = async () => {
     console.log(`Socket disconnected: ${socket.id}`);
     const player = players[socket.id];
@@ -350,9 +350,9 @@ io.on("connection", (socket) => {
   socket.on("main-disconnect", handleDisconnect);
 });
 
-// -------------------
-// EXPRESS ROUTES
-// -------------------
+
+
+
 app.get("/", (req, res) => res.redirect("/login"));
 app.get("/login", (req, res) => res.render("signin.ejs"));
 
@@ -383,7 +383,7 @@ app.post("/register", async (req, res) => {
     if (existingUser) return res.status(400).send("Username already exists.");
     const hashedPassword = await bcrypt.hash(password, 10);
     await userDetails.insertOne({ userName, email, password: hashedPassword });
-    // Redirect to join room directly after successful registration.
+    
     res.redirect(`/joinroom?userName=${userName}`);
   } catch (err) {
     console.error("Error during registration:", err);
@@ -465,7 +465,7 @@ app.get("/api/get-players", async (req, res) => {
   }
 });
 
-// Save chat message helper
+
 async function saveChatMessage(roomId, socketId, message, userId) {
   const chatCollection = await playerChat();
   try {
@@ -518,7 +518,6 @@ app.post("/ask", async (req, res) => {
         },
       }
     );
-
     const botReply =
       response.data[0]?.generated_text || "Bot had nothing to say 😅";
     res.json({ reply: botReply });

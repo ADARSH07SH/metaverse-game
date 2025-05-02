@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const micButton = document.querySelector(".microphone");
   const videoButton = document.querySelector(".videobtn");
 
-  // Global Variables
+  
   let peerConnections = {};
   let localStream = null;
   let conferenceParticipants = [];
@@ -15,12 +15,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const avatarColors = ["#FFB399", "#FF33FF", "#00B3E6", "#E6B333", "#3366E6"];
   let videoMuted = false;
 
-  // User and room info
+  
   const gamedata = document.getElementById("gamedata");
   const userId = gamedata.dataset.userId;
   const roomId = gamedata.dataset.roomId;
 
-  // Helper Functions
+  
   function getAvatarConfig(userName) {
     const initial = userName.charAt(0).toUpperCase();
     const color = avatarColors[userName.charCodeAt(0) % avatarColors.length];
@@ -151,7 +151,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const isVideoCurrentlyOn = videoTracks.length > 0 && videoTracks[0].enabled;
 
     if (isVideoCurrentlyOn) {
-      // Turn video OFF
+      
       videoTracks.forEach((track) => {
         track.enabled = false;
         track.stop();
@@ -168,13 +168,13 @@ document.addEventListener("DOMContentLoaded", () => {
         localAvatar.style.display = "flex";
       }
 
-      // Update all peer connections
+      
       Object.values(peerConnections).forEach((pc) => {
         const sender = pc.getSenders().find((s) => s.track?.kind === "video");
         if (sender) sender.replaceTrack(null);
       });
     } else {
-      // Turn video ON
+      
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
           video: { width: 640, height: 360 },
@@ -197,7 +197,7 @@ document.addEventListener("DOMContentLoaded", () => {
           localAvatar.style.display = "none";
         }
 
-        // Update all peer connections
+        
         Object.values(peerConnections).forEach((pc) => {
           const sender = pc
             .getSenders()
@@ -265,7 +265,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Event Listeners (set up immediately for buttons outside conference)
+  
   if (micButton) {
     micButton.addEventListener("click", toggleAudio);
   }
@@ -273,7 +273,7 @@ document.addEventListener("DOMContentLoaded", () => {
     videoButton.addEventListener("click", toggleVideo);
   }
 
-  // Conference Controls
+  
   window.conference = {
     async enter() {
       conferenceWindow.style.display = "block";
@@ -339,7 +339,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Socket Handlers
+  
   socket.on("offer", async ({ offer, sender }) => {
     if (sender === socket.id) return;
     setTimeout(async () => {

@@ -11,7 +11,7 @@ const config = {
 };
 const game = new Phaser.Game(config);
 
-// Global Variables
+
 let player;
 const otherPlayers = {};
 let lastUpdateTime = 0;
@@ -20,12 +20,12 @@ let joystick,
   joystickToggle = false;
 const showButton = document.getElementById("showButton");
 
-// Chair-sitting variables
-let sitting = false;
-let sitText; // "Press X to Sit/Leave" prompt
-let chairLayer; // The tile layer for chairs (for collision)
 
-// New global variables for Lobby (from Tiled) and its state:
+let sitting = false;
+let sitText; 
+let chairLayer; 
+
+
 let lobbyRegion = null;
 let inLobby = false;
 let incafe = false;
@@ -36,23 +36,23 @@ let fridgeRegions = [];
 let inFridge = false;
 let fridgeSound;
 
-// WebRTC placeholders (if used)
+
 const callCooldown = {};
 const activeCalls = {};
 const PROXIMITY_THRESHOLD = 100;
 const CALL_DELAY = 1500;
 const DISCONNECT_DELAY = 1000;
 
-// Movement config
+
 const UPDATE_INTERVAL = 100;
 const speed = 960;
 let count = 0;
 
-// Conference Hall Region (from Tiled)
+
 let conferenceHallRegion = null;
 let inConferenceHall = false;
 
-// WASD keys and sit toggle key
+
 let wKey, aKey, sKey, dKey, sitKey;
 let cursors;
 
@@ -75,7 +75,6 @@ function preload() {
     progressBar.clear();
     progressBar.fillStyle(0x00ff00, 0.7);
 
-    // 💡 Reduced width (70% of game width)
     const barWidth = this.sys.game.config.width * 0.5;
     const barX = (this.sys.game.config.width - barWidth) / 2;
 
@@ -89,9 +88,8 @@ function preload() {
     progressText.setText(`${Math.round(value * 100)}%`);
   });
 
-  // Load assets
   this.load.image("finalTiles", "/assets/main_assets/final.png");
-  // Load the map as JSON (exported from Tiled with embedded tilesets and object layers)
+
   this.load.tilemapTiledJSON("map", "/assets/final_csv/final.json");
   this.load.spritesheet("dude", "/assets/sprite_character/Character1.png", {
     frameWidth: 16,
@@ -139,11 +137,11 @@ function create() {
     event.stopPropagation();
   });
 
-  // Create the tilemap from the JSON file
+  
   const map = this.make.tilemap({ key: "map" });
   const tileset = map.addTilesetImage("final", "finalTiles");
 
-  // Create layers (using the names defined in Tiled)
+  
   const floorLayer = map.createLayer("floor", tileset, 0, 0);
   const wallLayer = map.createLayer("wall", tileset, 0, 0);
   chairLayer = map.createLayer("chair", tileset, 0, 0);
@@ -152,7 +150,7 @@ function create() {
   const other0Layer = map.createLayer("other0", tileset, 0, 0);
   const activeLayer = map.createLayer("active", tileset, 0, 0);
 
-  // Set collisions (using properties defined in Tiled)
+  
   wallLayer.setCollisionByProperty({ collides: true });
   other0Layer.setCollisionByProperty({ collides: true });
   other1Layer.setCollisionByProperty({ collides: true });
@@ -160,7 +158,7 @@ function create() {
   activeLayer.setCollisionByProperty({ collides: true });
   chairLayer.setCollisionByProperty({ collides: true });
 
-  // Parse conference hall region from Tiled objects
+  
   const confLayer = map.getObjectLayer("conference hall");
   if (confLayer && confLayer.objects.length > 0) {
     confLayer.objects.forEach((obj) => {
@@ -173,17 +171,17 @@ function create() {
               obj.width,
               obj.height
             );
-            // console.log("Conference Hall Region:", conferenceHallRegion);
+            
           }
         });
       }
     });
   }
 
-  // NEW: Parse Lobby region from Tiled objects (assumes object layer name "lobby")
+  
   const lobbyLayer = map.getObjectLayer("lobby");
   if (lobbyLayer && lobbyLayer.objects.length > 0) {
-    // Assuming one lobby region is defined
+    
     const lobbyObj = lobbyLayer.objects[0];
     lobbyRegion = new Phaser.Geom.Rectangle(
       lobbyObj.x,
@@ -191,12 +189,12 @@ function create() {
       lobbyObj.width,
       lobbyObj.height
     );
-    // console.log("Lobby Region:", lobbyRegion);
+    
   }
 
   const cafeLayer = map.getObjectLayer("cafeteria");
   if (cafeLayer && cafeLayer.objects.length > 0) {
-    // Assuming one lobby region is defined
+    
     const cafeObj = cafeLayer.objects[0];
     cafeRegion = new Phaser.Geom.Rectangle(
       cafeObj.x,
@@ -204,11 +202,11 @@ function create() {
       cafeObj.width,
       cafeObj.height
     );
-    // console.log("cafe Region:", cafeRegion);
+    
   }
   const codeLayer = map.getObjectLayer("futuristic");
   if (codeLayer && codeLayer.objects.length > 0) {
-    // Assuming one lobby region is defined
+    
     const codeObj = codeLayer.objects[0];
     codeRegion = new Phaser.Geom.Rectangle(
       codeObj.x,
@@ -216,7 +214,7 @@ function create() {
       codeObj.width,
       codeObj.height
     );
-    // console.log("code Region:", codeRegion);
+    
   }
   const myComLayer = map.getObjectLayer("myCom");
 
@@ -240,11 +238,11 @@ function create() {
     });
   }
 
-  // Create the sound instance
+  
   fridgeSound = this.sound.add('fridgeBuzz');
 
 
-  // Create the local player sprite
+  
   player = this.physics.add
     .sprite(3000, 1650, "dude")
     .setScale(3)
@@ -269,7 +267,7 @@ function create() {
 
   bot.setImmovable(true);
 
-  // Set up collisions
+  
   this.physics.add.collider(player, wallLayer);
   this.physics.add.collider(player, other0Layer);
   this.physics.add.collider(player, other1Layer);
@@ -278,13 +276,13 @@ function create() {
   this.physics.add.collider(player, chairLayer);
   this.physics.add.overlap(player, activeLayer, () => {});
 
-  // Configure camera
+  
   const camera = this.cameras.main;
   camera.startFollow(player).setZoom(0.9);
   camera.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
   this.physics.world.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
 
-  // Joystick setup
+  
   joystick = this.plugins.get("rexvirtualjoystickplugin").add(this, {
     x: this.cameras.main.width - 100,
     y: this.cameras.main.height - 100,
@@ -306,7 +304,7 @@ function create() {
 
   cursors = this.input.keyboard.createCursorKeys();
 
-  // Swipe controls
+  
   this.input.on("pointerdown", (pointer) => {
     this.startX = pointer.x;
     this.startY = pointer.y;
@@ -315,7 +313,7 @@ function create() {
     handleSwipe.call(this, pointer);
   });
 
-  // Pinch zoom (mobile)
+  
   let lastDistance = 0;
   this.input.on("pointermove", (pointer) => {
     if (pointer.pointerType === "touch" && pointer.pointers.length === 2) {
@@ -338,12 +336,12 @@ function create() {
     lastDistance = 0;
   });
 
-  // Wheel zoom
+  
   this.input.on("wheel", (_, __, ___, deltaY) => {
     camera.setZoom(Phaser.Math.Clamp(camera.zoom - deltaY * 0.001, 0.4, 1.2));
   });
 
-  // Socket events for remote players
+  
   socket.on("updatePosition", (data) => {
     if (data.id === socket.id) return;
     if (data.roomId == roomId) {
@@ -461,19 +459,19 @@ function updatePlayerAnimation(sprite, newX, newY) {
 }
 
 function sitOnChair() {
-  // Find the nearest chair tile
+  
   let closestTile = null;
   let minDist = Infinity;
-  let chairDirection = "down"; // Default direction
+  let chairDirection = "down"; 
 
   chairLayer.layer.data.forEach((row) => {
     row.forEach((tile) => {
       if (tile.index !== -1) {
-        // Get tile center coordinates
+        
         const tileCenterX = tile.pixelX + tile.width / 2;
         const tileCenterY = tile.pixelY + tile.height / 2;
 
-        // Calculate distance to player
+        
         const dist = Phaser.Math.Distance.Between(
           player.x,
           player.y,
@@ -485,7 +483,7 @@ function sitOnChair() {
           minDist = dist;
           closestTile = tile;
 
-          // Get chair direction from tile properties
+          
           if (tile.properties) {
             if (tile.properties.down) chairDirection = "down";
             else if (tile.properties.left) chairDirection = "left";
@@ -501,14 +499,14 @@ function sitOnChair() {
     const chairCenterX = closestTile.pixelX + closestTile.width / 2;
     const chairCenterY = closestTile.pixelY + closestTile.height / 2;
 
-    // Calculate sitting frame based on spriteNum and direction
+    
     const sitFrame = calculateSitFrame(spriteNum, chairDirection);
 
     player.setTexture("dude_sit");
     player.setFrame(sitFrame);
     player.setOrigin(0.5, 0.8);
     player.setPosition(chairCenterX, chairCenterY - 8);
-    // Optional: Add debug visualization
+    
 
     sitting = true;
     player.lastDirection = chairDirection;
@@ -516,7 +514,7 @@ function sitOnChair() {
 }
 
 function calculateSitFrame(spriteNum, direction) {
-  // Base offsets for each direction
+  
   const directionOffsets = {
     down: 0,
     left: 15,
@@ -524,18 +522,18 @@ function calculateSitFrame(spriteNum, direction) {
     up: 45,
   };
 
-  // Determine which sprite group we're in (groups of 5)
+  
   const group = Math.floor((spriteNum - 1) / 5);
   const spriteInGroup = (spriteNum - 1) % 5;
 
-  // Calculate frame number
+  
   let frame;
 
   if (group === 0) {
-    // First group (sprites 1-5)
+    
     frame = directionOffsets[direction] + spriteInGroup * 3;
   } else {
-    // Subsequent groups (sprites 6-10, 11-15, etc.)
+    
     frame = 60 * group + directionOffsets[direction] + spriteInGroup * 3;
   }
 
@@ -545,16 +543,16 @@ function calculateSitFrame(spriteNum, direction) {
 function update(time) {
   const chatInput = document.getElementById("player-chat");
 
-  // Check if chat input is not focused
+  
 
   const dist = Phaser.Math.Distance.Between(bot.x, bot.y, player.x, player.y);
   if (this.botComing && dist < 100) {
-    // Stop bot
+    
     bot.body.setVelocity(0);
     bot.anims.stop();
     this.botComing = false;
 
-    // Bot “speaks”
+    
     const talk = this.add
       .text(bot.x, bot.y - 40, "Hey! Whatcha need?", {
         font: "16px Arial",
@@ -563,11 +561,11 @@ function update(time) {
       })
       .setOrigin(0.5);
 
-    // Remove text after 3s
+    
     this.time.delayedCall(2000, () => talk.destroy());
   }
 
-  // Update remote players smoothly
+  
   Object.keys(otherPlayers).forEach((id) => {
     let remote = otherPlayers[id];
     if (
@@ -595,7 +593,7 @@ function update(time) {
     }
   });
 
-  // Conference Hall Detection
+  
   if (conferenceHallRegion) {
     if (
       Phaser.Geom.Rectangle.Contains(conferenceHallRegion, player.x, player.y)
@@ -603,7 +601,7 @@ function update(time) {
       if (!inConferenceHall) {
         inConferenceHall = true;
         console.log("Entered Conference Hall");
-        conference.enter(); // Defined in conference.js
+        conference.enter(); 
         socket.emit("enterConference", { roomId, id: socket.id, userId });
       }
     } else {
@@ -612,26 +610,26 @@ function update(time) {
         document;
 
         console.log("Exited Conference Hall");
-        conference.exit(); // Defined in conference.js
+        conference.exit(); 
         socket.emit("exitConference", { roomId, id: socket.id, userId });
       }
     }
   }
 
-  // NEW: Lobby Region Detection
+  
   if (lobbyRegion) {
     if (Phaser.Geom.Rectangle.Contains(lobbyRegion, player.x, player.y)) {
       if (!inLobby) {
         inLobby = true;
         console.log("Entered Lobby");
-        // (Optional) Trigger lobby-specific behavior/UI here
+        
         socket.emit("enterLobby", { roomId, id: socket.id, userId });
       }
     } else {
       if (inLobby) {
         inLobby = false;
         console.log("Exited Lobby");
-        // (Optional) Hide lobby UI or trigger an exit event
+        
         socket.emit("exitLobby", { roomId, id: socket.id, userId });
       }
     }
@@ -641,14 +639,14 @@ function update(time) {
       if (!incafe) {
         incafe = true;
 
-        // (Optional) Trigger lobby-specific behavior/UI here
+        
         socket.emit("entercafe", { roomId, id: socket.id, userId });
       }
     } else {
       if (incafe) {
         incafe = false;
 
-        // (Optional) Hide lobby UI or trigger an exit event
+        
         socket.emit("exitcafe", { roomId, id: socket.id, userId });
       }
     }
@@ -658,14 +656,14 @@ function update(time) {
       if (!incode) {
         incode = true;
 
-        // (Optional) Trigger lobby-specific behavior/UI here
+        
         socket.emit("entercode", { roomId, id: socket.id, userId });
       }
     } else {
       if (incode) {
         incode = false;
 
-        // (Optional) Hide lobby UI or trigger an exit event
+        
         socket.emit("exitcode", { roomId, id: socket.id, userId });
       }
     }
@@ -699,16 +697,16 @@ function update(time) {
   if (currentlyInFridge && !inFridge) {
     inFridge = true;
     console.log("Entered a fridge area");
-    fridgeSound.play();        // play the sound
-    handleFridgeInteraction(); // call your fridge function
+    fridgeSound.play();        
+    handleFridgeInteraction(); 
   } else if (!currentlyInFridge && inFridge) {
     inFridge = false;
     console.log("Exited fridge area");
-    // optionally stop sound or do exit logic
+    
   }
 
 
-  // Chair-sitting handling
+  
   let closestChairTile = null;
   let minDistance = Infinity;
   if (chairLayer) {
@@ -765,7 +763,7 @@ function update(time) {
     }
   }
 
-  // Local Player Movement using WASD/Joystick
+  
   if (!sitting) {
     if (count === 0) {
       player.anims.play("down", true);
@@ -815,23 +813,23 @@ function update(time) {
   const codeEditor = document.getElementById("virtualEditorScreen");
   const editorVisible = codeEditor && !codeEditor.classList.contains("hidden");
 
-  // Completely disable Phaser input when editor is visible
+  
   if (editorVisible) {
-    // Freeze player and clear inputs
+    
 
-    // Disable Phaser keyboard system
+    
     this.input.keyboard.enabled = false;
 
-    // Clear any active key states
+    
     this.input.keyboard.resetKeys();
 
-    // Prevent canvas from capturing focus
+    
     this.game.canvas.tabIndex = -1;
     this.game.canvas.style.pointerEvents = "none";
 
     return;
   } else {
-    // Re-enable Phaser input when editor is hidden
+    
     this.input.keyboard.enabled = true;
     this.game.canvas.style.pointerEvents = "auto";
   }
@@ -851,7 +849,7 @@ function update(time) {
       }
     }
   }
-  // WebRTC Call Handling Based on Proximity
+  
   Object.keys(otherPlayers).forEach((id) => {
     const other = otherPlayers[id];
     if (other.nameLabel) other.nameLabel.setPosition(other.x, other.y - 60);
@@ -866,7 +864,7 @@ function update(time) {
         console.log(`Near player: ${id}`);
         callCooldown[id] = true;
         setTimeout(() => {
-          // startCallWithPlayer(id);
+          
           activeCalls[id] = true;
           delete callCooldown[id];
         }, CALL_DELAY);
@@ -874,7 +872,7 @@ function update(time) {
     } else if (activeCalls[id]) {
       console.log(`Moving away from player: ${id}`);
       if (distance > PROXIMITY_THRESHOLD + 20) {
-        // endCallWithPlayer(id);
+        
         delete activeCalls[id];
       } else {
         setTimeout(() => {
@@ -882,7 +880,7 @@ function update(time) {
             Phaser.Math.Distance.Between(player.x, player.y, other.x, other.y) >
             PROXIMITY_THRESHOLD
           ) {
-            // endCallWithPlayer(id);
+            
             delete activeCalls[id];
           }
         }, DISCONNECT_DELAY);
@@ -890,16 +888,16 @@ function update(time) {
     }
   });
 
-  // Emit Local Player Position Updates
+  
   if (player.x !== lastPlayerPosition.x || player.y !== lastPlayerPosition.y) {
     if (time - lastUpdateTime > UPDATE_INTERVAL) {
       socket.emit("updatePosition", {
         id: socket.id,
         x: player.x,
         y: player.y,
-        spriteNum: spriteNum, // defined in your project
+        spriteNum: spriteNum, 
         playerName: userId,
-        roomId: roomId, // defined in your project
+        roomId: roomId, 
       });
       lastPlayerPosition = { x: player.x, y: player.y };
       lastUpdateTime = time;
@@ -907,13 +905,13 @@ function update(time) {
   }
 }
 function callBotToYou() {
-  // Flag so update knows it’s coming
+  
   this.botComing = true;
 
-  // Start walk anim
+  
   bot.anims.play("bot_walk", true);
 
-  // Move bot toward player at 200px/sec
+  
   this.physics.moveToObject(bot, player, 400);
 }
 
@@ -925,7 +923,7 @@ function closeGame() {
 }
 
 function handleFridgeInteraction() {
-  // e.g. show a UI prompt, open fridge inventory, etc.
+  
   console.log("Fridge function called!");
-  // … your custom logic here …
+  
 }

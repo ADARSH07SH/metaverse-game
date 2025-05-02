@@ -8,7 +8,7 @@
     />
 
     <title>Game Overlay</title>
-    <!-- CSS files -->
+    
     <link rel="stylesheet" href="/css/game.css" />
     <link rel="stylesheet" href="/css/video.css" />
     <link rel="stylesheet" href="/css/mobile.css" />
@@ -24,22 +24,22 @@
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap" rel="stylesheet">
 
     <script src="/js/codeEditor.js"></script>
-    <!-- Phaser and related plugins -->
+    
     <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.min.js"></script>
     <script src="https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexvirtualjoystickplugin.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
-    <!-- Load Mediasoup Client UMD Build from jsDelivr -->
+    
     <script src="https://cdn.jsdelivr.net/npm/mediasoup-client/umd/mediasoupClient.min.js"></script>
     <script>
       console.log("window.mediasoupClient:", window.mediasoupClient);
-      // You should see an object with a Device property.
+     
     </script>
 
-    <!-- Socket.io -->
+    
     <script src="/socket.io/socket.io.js"></script>
 
-    <!-- Global socket initialization -->
+    
     <script>
       const socket = io();
       console.log("Socket initialized:", socket);
@@ -63,7 +63,7 @@
 </div>
   <button id="exitConferenceBtn">Exit Conference</button>
 </div> 
-    <!-- Chatbox and Players List -->
+    
     <div class="chatbox">
       <div class="chat">
         <input type="text" id="player-chat" name="playerChat" />
@@ -80,7 +80,7 @@
 
     <div id="version"></div>
 
-    <!-- Code Editor Popup -->
+    
     <div id="virtualEditorScreen" class="hidden">
       <div class="editor-header">
         <h3>Collab Editor</h3>
@@ -105,10 +105,10 @@
       data-user-id="<%= userId %>"
     ></div>
 
-    <!-- Hidden Button for Game.js if needed -->
+    
     <button id="showButton" style="display: none"></button>
 
-    <!-- Footer -->
+    
     <footer>
       <div class="acc">
         <div class="myinfo">
@@ -167,7 +167,7 @@
       </div>
     </footer>
 
-    <!-- Custom Scripts: Load your custom scripts after libraries -->
+    
     <script src="/js/game-socket.js"></script>
     <script src="/js/conference.js"></script>
     <script src="/js/mobile.js"></script>
@@ -176,10 +176,10 @@
     <script src="/js/callmini.js"></script>
     <script src="/js/notes.js"></script>
 
-    <!-- Add this to your HTML if not already included -->
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
 
-    <!-- Inline global variables -->
+    
     <script>
       let roomId = "<%= roomId %>";
       let userId = "<%= userId %>";
@@ -189,7 +189,7 @@
         const chatbox = document.querySelector(".chatbox");
         const chatInput = document.getElementById("player-chat");
 
-        // If clicked outside the chatbox, blur the input
+      
         if (!chatbox.contains(e.target)) {
           chatInput.blur();
         }
@@ -266,12 +266,12 @@
         li.textContent = player.userName;
         li.classList.add("active-player");
 
-        // create the call button
+        
         const callBtn = document.createElement("button");
         callBtn.textContent = " 📞";
         callBtn.title = `Call ${player.userName}`;
         callBtn.addEventListener("click", () => {
-          // your private‑call stub
+          
           initiatePrivateCall(player.socketId, player.userName);
         });
 
@@ -318,7 +318,7 @@
         }
       });
 
-      // Attach event listeners to emoji buttons
+     
       document.addEventListener("DOMContentLoaded", function () {
         const emojis = document.querySelectorAll(".emoji");
         emojis.forEach((emojiEl) => {

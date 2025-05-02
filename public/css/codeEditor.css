@@ -74,7 +74,7 @@
   font-family: 'Dancing Script', cursive;
   line-height: 30px;
   font-size: 18px;
-  white-space: normal; /* This fixes space/line behavior */
+  white-space: normal; 
 }
 
 

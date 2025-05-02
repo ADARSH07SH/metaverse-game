@@ -11,7 +11,7 @@ function createRoom() {
   }
 
   try {
-    socket.emit("createRoom", roomId); //
+    socket.emit("createRoom", roomId); 
     console.log(`Room ${roomId} created by ${userName} from here`);
   } catch (err) {
     console.error("Error creating room:", err);

@@ -27,7 +27,7 @@ class Example extends Phaser.Scene {
       progressBar.clear();
       progressBar.fillStyle(0x00ff00, 0.7);
 
-      // 💡 Reduced width (70% of game width)
+      
       const barWidth = this.sys.game.config.width * 0.5;
       const barX = (this.sys.game.config.width - barWidth) / 2;
 
@@ -67,7 +67,7 @@ class Example extends Phaser.Scene {
 
 const mobileMain = document.querySelector(".mobileMain");
 document.addEventListener("DOMContentLoaded", () => {
-  let audio = new Audio(); // basic audio obj
+  let audio = new Audio(); 
   let isPlaying = false;
  const songs = {
    "1.mp3": {
@@ -97,7 +97,7 @@ document.addEventListener("DOMContentLoaded", () => {
    isPlaying = true;
    playBtn.innerHTML = "❚❚";
 
-   // update UI
+   
    spotifyOverlay.querySelector(".song-title").textContent = title;
    spotifyOverlay.querySelector(".artist").textContent = artist;
    spotifyOverlay.querySelector(
@@ -119,7 +119,7 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
         <div class="app-container">
           <div class="app-icon" id="spotify-app">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Spotify_logo_without_text.svg/2048px-Spotify_logo_without_text.svg.png" alt="Spotify">
+            <img src="https:
           </div>
           <div class="gamebtn1 app-icon" id="gamebtn1"><i class="fa-solid fa-gamepad fa-3x"></i>      </div>
         </div>
@@ -204,7 +204,7 @@ document.addEventListener("DOMContentLoaded", () => {
      } else if (!gameHidden && phaserGame) {
        phaserGame.destroy(true);
        phaserGame = null;
-       gameContainer.innerHTML = ""; // clear canvas
+       gameContainer.innerHTML = ""; 
      }
    });
 
@@ -241,7 +241,7 @@ function playAudio(file) {
   isPlaying = true;
   playBtn.innerHTML = "❚❚";
 
-  // Update UI
+  
   spotifyOverlay.querySelector(".song-title").textContent = title;
   spotifyOverlay.querySelector(".artist").textContent = artist;
   spotifyOverlay.querySelector(
@@ -258,7 +258,7 @@ function playAudio(file) {
   }
 });
 
-// socket events
+
 
 mobileMain.style.display = "none";
 const infoIcon = document.querySelector(".info i");
@@ -266,11 +266,11 @@ const infoIcon = document.querySelector(".info i");
 socket.on("entercafe1", () => {
   console.log("enter");
   mobileMain.classList.add("active");
-  if (infoIcon) infoIcon.style.color = "red"; // ✅ set color when active
+  if (infoIcon) infoIcon.style.color = "red"; 
 });
 
 socket.on("exitcafe1", () => {
   console.log("exit");
   mobileMain.classList.remove("active");
-  if (infoIcon) infoIcon.style.color = ""; // ✅ reset color
+  if (infoIcon) infoIcon.style.color = ""; 
 });
