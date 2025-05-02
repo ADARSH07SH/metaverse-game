@@ -32,6 +32,10 @@ let incafe = false;
 let incode = false;
 let inmycom = false;
 let mycomRegions = [];
+let fridgeRegions = [];
+let inFridge = false;
+let fridgeSound;
+
 // WebRTC placeholders (if used)
 const callCooldown = {};
 const activeCalls = {};
@@ -53,6 +57,7 @@ let wKey, aKey, sKey, dKey, sitKey;
 let cursors;
 
 function preload() {
+  this.load.audio("fridgeBuzz", "/assets/audio/can.mp3");
   const progressBar = this.add.graphics();
   const progressText = this.add
     .text(
@@ -226,6 +231,18 @@ function create() {
       mycomRegions.push(region);
     });
   }
+
+  const fridgeLayer = map.getObjectLayer("fridge");
+  if (fridgeLayer && fridgeLayer.objects.length > 0) {
+    fridgeLayer.objects.forEach(obj => {
+      const rect = new Phaser.Geom.Rectangle(obj.x, obj.y, obj.width, obj.height);
+      fridgeRegions.push(rect);
+    });
+  }
+
+  // Create the sound instance
+  fridgeSound = this.sound.add('fridgeBuzz');
+
 
   // Create the local player sprite
   player = this.physics.add
@@ -675,6 +692,22 @@ function update(time) {
     }
   }
 
+   let currentlyInFridge = fridgeRegions.some(region =>
+    Phaser.Geom.Rectangle.Contains(region, player.x, player.y)
+  );
+
+  if (currentlyInFridge && !inFridge) {
+    inFridge = true;
+    console.log("Entered a fridge area");
+    fridgeSound.play();        // play the sound
+    handleFridgeInteraction(); // call your fridge function
+  } else if (!currentlyInFridge && inFridge) {
+    inFridge = false;
+    console.log("Exited fridge area");
+    // optionally stop sound or do exit logic
+  }
+
+
   // Chair-sitting handling
   let closestChairTile = null;
   let minDistance = Infinity;
@@ -889,4 +922,10 @@ function closeGame() {
   socket.emit("exitConference", { roomId, id: socket.id, userId });
   socket.disconnect();
   game.destroy(true);
+}
+
+function handleFridgeInteraction() {
+  // e.g. show a UI prompt, open fridge inventory, etc.
+  console.log("Fridge function called!");
+  // … your custom logic here …
 }

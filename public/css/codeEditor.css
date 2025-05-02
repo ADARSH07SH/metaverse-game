@@ -1,12 +1,12 @@
 #virtualEditorScreen {
   position: fixed;
   top: 3%;
-  left: 10%;
-  width: 80%;
+  left: 35%;
+  width: 60%;
   height: 80%;
   background: #111;
   color: white;
-  z-index: 9999;
+  z-index: 100;
   border: 2px solid green;
   border-radius: 12px;
   padding: 10px;
@@ -42,13 +42,13 @@
 
 .notesEditor {
   position: fixed;
-  top: 50%;
-  left: 50%;
+  top: 25%;
+  left: 12%;
   transform: translate(-50%, -50%);
   z-index: 9999;
-  width: 30%;
-  height: 65%;
-  padding: 2rem;
+  width: 22%;
+  height: 43%;
+  padding-left: 3.2rem;
   background: #fdf6e3;
   background-image:
     repeating-linear-gradient(to bottom, #ccc 0px, #ccc 1px, transparent 1px, transparent 30px),
@@ -93,18 +93,4 @@
 }
 
 
-#adOverlay {
-  position: absolute;
-  top: 20px; /* Distance from top of the screen */
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 9999; /* Above everything else */
-  width: 400px;
-  height: 200px;
-  background: white;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+

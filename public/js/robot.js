@@ -18,11 +18,12 @@ function textToSpeech(text, cb) {
   speechSynthesis.speak(speech);
 }
 
-// One after another
-textToSpeech(text, () => {
-  textToSpeech(text2);
-  textToSpeech(text3);
-});
-
+setTimeout(() => {
+  textToSpeech(text, () => {
+    textToSpeech(text2, () => {
+      textToSpeech(text3);
+    });
+  });
+}, 4000); // .*ne
 
 

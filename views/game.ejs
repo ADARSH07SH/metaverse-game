@@ -89,30 +89,10 @@
       <div id="editorContainer" style="height: 90%; width: 100%"></div>
     </div>
 
-    <!-- Ad Overlay -->
-     <div id="cookie-consent">
-  <p>We use cookies for ads. <button id="accept-cookies">Accept</button></p>
-</div>
+<div id="notesEditor" class="notesEditor hidden">
 
-<script>
-document.getElementById('accept-cookies').addEventListener('click', () => {
-  // Store consent
-  localStorage.setItem('cookieConsent', 'true');
-  // Reload ads
-  (adsbygoogle = window.adsbygoogle || []).push({});
-});
-</script>
+ <button class="closeBtn" onclick="document.getElementById('notesEditor').classList.add('hidden')">✖</button>
 
-<div id="adOverlay">
- <ins class="adsbygoogle"
-     style="display:inline-block;width:300px;height:150px"
-     data-ad-client="ca-pub-3866701441901817"
-     data-ad-slot="8795948841"></ins>
-</div>
-
-
-<div id="notesEditor" class="notesEditor">
-  <button class="closeBtn" onclick="document.getElementById('notesEditor').style.display='none'">✖</button>
   <div id="notesContent" class="notesContent" contenteditable="true">
     Start typing your notes here...
   </div>
@@ -193,22 +173,14 @@ document.getElementById('accept-cookies').addEventListener('click', () => {
     <script src="/js/mobile.js"></script>
     <script src="/js/game.js"></script>
     <script src="/js/robot.js"></script>
-   
+    <script src="/js/callmini.js"></script>
     <script src="/js/notes.js"></script>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3866701441901817"
-     crossorigin="anonymous"></script>
+
     <!-- Add this to your HTML if not already included -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
 
     <!-- Inline global variables -->
     <script>
-
-       
-document.addEventListener('DOMContentLoaded', () => {
-  (adsbygoogle = window.adsbygoogle || []).push({});
-});
-
-
       let roomId = "<%= roomId %>";
       let userId = "<%= userId %>";
       let spriteNum = "<%= sprite %>";
@@ -267,7 +239,8 @@ document.addEventListener('DOMContentLoaded', () => {
       coding.addEventListener("click", function () {
         console.log("clicked");
         codingicon.classList.toggle("activered");
-        editorScreen.classList.toggle("hidden")
+        editorScreen.classList.toggle("hidden");
+        loadMonacoAndInit(currentRoomId||123456);
       });
 
 

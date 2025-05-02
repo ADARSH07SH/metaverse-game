@@ -80,12 +80,12 @@ window.addEventListener("DOMContentLoaded", () => {
       editor = null;
     }
   });
+ let notes = document.getElementById("notesEditor");
 
-  // 💬 socket listeners
   socket.on("entercode1", ({ userId, roomId }) => {
     console.log("📥 entercode1 received for", userId, "room:", roomId);
     editorScreen.classList.remove("hidden");
-
+notes.classList.remove("hidden")
     setTimeout(() => {
       loadMonacoAndInit(roomId);
       editorScreen.focus();
@@ -100,6 +100,7 @@ window.addEventListener("DOMContentLoaded", () => {
       editor = null;
     }
     editorScreen.classList.add("hidden");
+    notes.classList.add("hidden")
     document.getElementById("game-container").focus();
   });
 
