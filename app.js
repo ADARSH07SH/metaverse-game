@@ -416,29 +416,46 @@ app.get("/joinroom", (req, res) => {
 app.post("/create-room", async (req, res) => {
   const { roomId, userName, sprite } = req.body;
   try {
+    if (!roomId || !userName) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
     const roomCollection = await getRoomDetailsCollection();
     const existingRoom = await roomCollection.findOne({ roomId });
-    if (existingRoom) return res.status(400).send("Room ID already exists.");
+
+    if (existingRoom) {
+      return res.status(400).json({ message: "Room ID already exists" });
+    }
+
     await roomCollection.insertOne({
       roomId,
       createdby: userName,
       players: [{ userName, active: 1 }],
     });
-    res.redirect(
-      `/v1/game_office1?roomId=${roomId}&userId=${userName}&sprite=${sprite}`
-    );
+
+    res.json({
+      redirect: `/v1/game_office1?roomId=${roomId}&userId=${userName}&sprite=${sprite}`,
+    });
   } catch (err) {
     console.error("Error creating room:", err);
-    res.status(500).send("Internal server error.");
+    res.status(500).json({ message: "Internal server error" });
   }
 });
 
 app.post("/join-room", async (req, res) => {
-  const { roomId, userName, sprite: currentImage } = req.body;
+  const { roomId, userName, sprite } = req.body;
   try {
+    if (!roomId || !userName) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
     const roomCollection = await getRoomDetailsCollection();
     const existingRoom = await roomCollection.findOne({ roomId });
-    if (!existingRoom) return res.status(400).send("Room ID does not exist.");
+
+    if (!existingRoom) {
+      return res.status(400).json({ message: "Room ID does not exist" });
+    }
+
     await roomCollection.updateOne(
       { roomId },
       { $pull: { players: { userName } } }
@@ -447,13 +464,13 @@ app.post("/join-room", async (req, res) => {
       { roomId },
       { $push: { players: { userName, active: 1 } } }
     );
-    console.log(`${userName} rejoined room ${roomId} with a fresh record`);
-    res.redirect(
-      `/v1/game_office1?roomId=${roomId}&userId=${userName}&sprite=${currentImage}`
-    );
+
+    res.json({
+      redirect: `/v1/game_office1?roomId=${roomId}&userId=${userName}&sprite=${sprite}`,
+    });
   } catch (err) {
     console.error("Error joining room:", err);
-    res.status(500).send("Internal server error.");
+    res.status(500).json({ message: "Internal server error" });
   }
 });
 

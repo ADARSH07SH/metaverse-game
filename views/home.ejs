@@ -14,6 +14,12 @@
   />
 </head>
 <body>
+    <div class="error-modal" id="errorModal">
+    <div class="modal-content">
+      <span class="close-btn">&times;</span>
+      <p id="errorMessage"></p>
+    </div>
+  </div>
   <div class="container">
     <div class="card">
       <h3>Metaverse Office</h3>
@@ -110,6 +116,66 @@
       updateImage();
       updateSpriteInputs();
     });
+    
+
+
+     const errorModal = document.getElementById("errorModal");
+    const errorMessage = document.getElementById("errorMessage");
+    const closeBtn = document.querySelector(".close-btn");
+
+    function showError(message) {
+      errorMessage.textContent = message;
+      errorModal.style.display = "block";
+    }
+
+    closeBtn.addEventListener("click", () => {
+      errorModal.style.display = "none";
+    });
+
+    window.addEventListener("click", (e) => {
+      if (e.target === errorModal) {
+        errorModal.style.display = "none";
+      }
+    });
+
+    // Form handling
+    document.querySelectorAll('form').forEach(form => {
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());
+        const roomId = data.roomId || form.querySelector('[name="roomId"]').value;
+
+        // Client-side validation
+        if (!roomId.trim() && form.classList.contains('create-room')) {
+          showError("Please enter a Room ID!");
+          return;
+        }
+
+        try {
+          const response = await fetch(form.action, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({...data, roomId})
+          });
+
+          const result = await response.json();
+          
+          if (result.redirect) {
+            window.location.href = result.redirect;
+          } else {
+            showError(result.message || "Something went wrong");
+          }
+        } catch (err) {
+          console.error('Form submission error:', err);
+          showError("Network error. Please try again.");
+        }
+      });
+    });
+    
   </script>
 </body>
 </html>
