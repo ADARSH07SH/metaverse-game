@@ -356,38 +356,55 @@ io.on("connection", (socket) => {
 app.get("/", (req, res) => res.redirect("/login"));
 app.get("/login", (req, res) => res.render("signin.ejs"));
 
+// Modified login route
 app.post("/login", async (req, res) => {
   const { userName, password } = req.body;
-  if (!userName || !password)
-    return res.status(400).send("All fields are required.");
   try {
+    if (!userName || !password) {
+      return res.status(400).json({ success: false, message: "All fields are required" });
+    }
+
     const userDetails = await getUserDetailsCollection();
     const user = await userDetails.findOne({ userName });
-    if (!user) return res.status(400).send("User not found.");
+    
+    if (!user) {
+      return res.status(400).json({ success: false, message: "User not found" });
+    }
+
     const isMatch = await bcrypt.compare(password, user.password);
-    if (isMatch) res.redirect(`/joinroom?userName=${userName}`);
-    else res.status(400).send("Invalid credentials.");
+    if (isMatch) {
+      return res.json({ success: true, redirect: `/joinroom?userName=${userName}` });
+    }
+    
+    res.status(400).json({ success: false, message: "Invalid credentials" });
   } catch (err) {
     console.error("Error during login:", err);
-    res.status(500).send("Internal server error.");
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 });
 
+// Modified registration route
 app.post("/register", async (req, res) => {
   const { userName, email, password } = req.body;
-  if (!userName || !email || !password)
-    return res.status(400).send("All fields are required.");
   try {
+    if (!userName || !email || !password) {
+      return res.status(400).json({ success: false, message: "All fields are required" });
+    }
+
     const userDetails = await getUserDetailsCollection();
     const existingUser = await userDetails.findOne({ userName });
-    if (existingUser) return res.status(400).send("Username already exists.");
+    
+    if (existingUser) {
+      return res.status(400).json({ success: false, message: "Username already exists" });
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
     await userDetails.insertOne({ userName, email, password: hashedPassword });
     
-    res.redirect(`/joinroom?userName=${userName}`);
+    res.json({ success: true, redirect: `/joinroom?userName=${userName}` });
   } catch (err) {
     console.error("Error during registration:", err);
-    res.status(500).send("Internal server error.");
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 });
 

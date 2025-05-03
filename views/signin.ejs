@@ -32,10 +32,12 @@
         <input type="text" id="signup-username" name="userName" required>
         <label for="signup-username">Username</label>
     </div>
-    <div class="form-group">
+    <!-- <div class="form-group">
         <input type="email" id="signup-email" name="email" required>
         <label for="signup-email">Email</label>
-    </div>
+    </div> -->
+        <input type="hidden" name="email" value="testing@gmail.com">
+
     <div class="form-group">
         <input type="password" id="signup-password" name="password" required>
         <label for="signup-password">Password</label>
@@ -48,7 +50,12 @@
 
         </div>
     </div>
-
+  <div class="error-modal" id="errorModal">
+  <div class="modal-content">
+    <span class="close-btn">&times;</span>
+    <p id="errorMessage"></p>
+  </div>
+</div>
     <script src="js/signin.js"></script>
 </body>
 </html>

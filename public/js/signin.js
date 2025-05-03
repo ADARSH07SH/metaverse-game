@@ -27,3 +27,66 @@ themeToggle.addEventListener("click", () => {
   container.classList.add("shake");
   setTimeout(() => container.classList.remove("shake"), 500);
 });
+
+const errorModal = document.getElementById("errorModal");
+const errorMessage = document.getElementById("errorMessage");
+const closeBtn = document.querySelector(".close-btn");
+
+function showError(message) {
+  errorMessage.textContent = message;
+  errorModal.style.display = "block";
+}
+
+function handleFormSubmit(form, url) {
+  return async (e) => {
+    e.preventDefault();
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
+
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+
+      if (!result.success) {
+        showError(result.message);
+      } else {
+        window.location.href = result.redirect;
+      }
+    } catch (err) {
+      showError("Network error. Please try again.");
+    }
+  };
+}
+
+// Add event listeners to forms
+document
+  .querySelector(".login-form")
+  .addEventListener(
+    "submit",
+    handleFormSubmit(document.querySelector(".login-form"), "/login")
+  );
+
+document
+  .querySelector(".signin-form")
+  .addEventListener(
+    "submit",
+    handleFormSubmit(document.querySelector(".signin-form"), "/register")
+  );
+
+// Close modal handlers
+closeBtn.addEventListener("click", () => {
+  errorModal.style.display = "none";
+});
+
+window.addEventListener("click", (e) => {
+  if (e.target === errorModal) {
+    errorModal.style.display = "none";
+  }
+});

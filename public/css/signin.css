@@ -182,3 +182,40 @@
 ::-webkit-scrollbar {
     display: none;
 }
+
+.error-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  z-index: 1000;
+}
+
+.modal-content {
+  position: relative;
+  background: rgb(247, 161, 161);
+  padding: 2rem;
+  width: 80%;
+  max-width: 400px;
+  top: 15%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 8px;
+  text-align: center;
+}
+
+.dark-mode .modal-content {
+  background: #2c2c2c;
+  color: white;
+}
+
+.close-btn {
+  position: absolute;
+  right: 1rem;
+  top: 1rem;
+  cursor: pointer;
+  font-size: 1.5rem;
+}
