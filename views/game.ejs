@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="/css/video.css" />
     <link rel="stylesheet" href="/css/mobile.css" />
     <link rel="stylesheet" href="/css/codeEditor.css" />
-    <link rel="stylesheet" href="/css/callmini.css" />
+   
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
@@ -32,7 +32,29 @@
     
     <script src="https://cdn.jsdelivr.net/npm/mediasoup-client/umd/mediasoupClient.min.js"></script>
     <script>
-      console.log("window.mediasoupClient:", window.mediasoupClient);
+      ////////////////////////////////////////////console.log
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+("window.mediasoupClient:", window.mediasoupClient);
      
     </script>
 
@@ -42,7 +64,29 @@
     
     <script>
       const socket = io();
-      console.log("Socket initialized:", socket);
+      ////////////////////////////////////////////console.log
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+("Socket initialized:", socket);
     </script>
   </head>
   <body>
@@ -173,9 +217,7 @@
     <script src="/js/mobile.js"></script>
     <script src="/js/game.js"></script>
     <script src="/js/robot.js"></script>
-    <script src="/js/callmini.js"></script>
-    <script src="/js/notes.js"></script>
-
+  
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
 
@@ -195,15 +237,103 @@
         }
       });
 
-      console.log("Player name:", userId);
-      console.log("Joined room:", roomId);
+      ////////////////////////////////////////////console.log
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+("Player name:", userId);
+      ////////////////////////////////////////////console.log
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+("Joined room:", roomId);
 
       socket.emit("player position");
       socket.on("connect", () => {
-        console.log("Socket ID:", socket.id);
+        ////////////////////////////////////////////console.log
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+("Socket ID:", socket.id);
       });
       socket.on("message", (data) => {
-        console.log("Message from server:", data);
+        ////////////////////////////////////////////console.log
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+("Message from server:", data);
       });
 
       function updateTime() {
@@ -237,7 +367,29 @@
   const editorScreen = document.getElementById("virtualEditorScreen");
 
       coding.addEventListener("click", function () {
-        console.log("clicked");
+        ////////////////////////////////////////////console.log
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+("clicked");
         codingicon.classList.toggle("activered");
         editorScreen.classList.toggle("hidden");
         loadMonacoAndInit(currentRoomId||123456);
@@ -279,7 +431,29 @@
         playersUl.appendChild(li);
       });
 
-    console.log(players);
+    ////////////////////////////////////////////console.log
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+(players);
   } catch (error) {
     console.error("Error fetching players:", error);
   }

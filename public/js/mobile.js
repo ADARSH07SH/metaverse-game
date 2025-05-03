@@ -119,8 +119,9 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
         <div class="app-container">
           <div class="app-icon" id="spotify-app">
-            <img src="https:
-          </div>
+  <img src="/assets/minigame1/R.png" alt="Spotify Icon" />
+</div>
+
           <div class="gamebtn1 app-icon" id="gamebtn1"><i class="fa-solid fa-gamepad fa-3x"></i>      </div>
         </div>
       </div>

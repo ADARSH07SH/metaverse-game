@@ -1,100 +1,108 @@
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Metaverse Office</title>
-    <link rel="stylesheet" href="css/home.css" />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css"
-      integrity="sha512-5Hs3dF2AEPkpNAR7UiOHba+lRSJNeM2ECkwxUIxC1Q/FLycGTbNapWXB4tP889k5T5Ju8fs4b1P5z/iB4nMfSQ=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    />
-  </head>
-  <body>
-    <div class="container">
-      <div class="card">
-        <h3>Metaverse Office</h3>
-        <div class="userchar">
-          <i class="fa-solid fa-arrow-left" id="arrow-left"></i>
-          <img
-            src="/assets/character_logo/1.png"
-            class="profile-image"
-            id="profile-image"
-            alt="Logo"
-          />
-          <i class="fa-solid fa-arrow-right" id="arrow-right"></i>
-        </div>
-        <%= "Hello " + userName %>
-
-        <!-- Create Room Form -->
-<form class="create-room" action="create-room" method="POST">
-  <div class="create-room">
-    <input type="text" placeholder="Room ID: (ASDF1234)" name="roomId" />
-    <input type="hidden" name="userName" value="<%= userName %>" />
-    <!-- Unique id for create room -->
-    <input type="hidden" name="sprite" id="sprite-input-create" value="1" />
-    <button type="submit" onclick="createRoom()">CREATE ROOM</button>
-  </div>
-</form>
-
-<!-- Join Room Form -->
-<form class="join-room" action="join-room" method="POST">
-  <div class="join-room">
-    <input type="text" placeholder="Room ID: (ASDF1234)" name="roomId" />
-    <input type="hidden" name="userName" value="<%= userName %>" />
-    <!-- Unique id for join room -->
-    <input type="hidden" name="sprite" id="sprite-input-join" value="1" />
-    <button type="submit" onclick="joinRoom()">JOIN ROOM</button>
-  </div>
-</form>
-
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Metaverse Office</title>
+  <link rel="stylesheet" href="/css/home.css" />
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css"
+    integrity="sha512-5Hs3dF2AEPkpNAR7UiOHba+lRSJNeM2ECkwxUIxC1Q/FLycGTbNapWXB4tP889k5T5Ju8fs4b1P5z/iB4nMfSQ=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  />
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <h3>Metaverse Office</h3>
+      <div class="userchar">
+        <i class="fa-solid fa-arrow-left" id="arrow-left"></i>
+        <img src="/assets/character_logo/1.png" class="profile-image" id="profile-image" alt="Logo" />
+        <i class="fa-solid fa-arrow-right" id="arrow-right"></i>
       </div>
+
+      <div class="room-forms">
+        <form class="create-room" action="create-room" method="POST">
+          <input type="text" placeholder="Room ID: (ASDF1234)" name="roomId" />
+          <input type="hidden" name="userName" value="<%= userName %>" />
+          <input type="hidden" name="sprite" id="sprite-input-create" value="1" />
+          <button type="submit">CREATE</button>
+        </form>
+
+        <form class="join-room" action="join-room" method="POST">
+          <input type="text" placeholder="Room ID: (ASDF1234)" name="roomId" />
+          <input type="hidden" name="userName" value="<%= userName %>" />
+          <input type="hidden" name="sprite" id="sprite-input-join" value="1" />
+          <button type="submit">JOIN</button>
+        </form>
+      </div>
+
+
+     <div class="private-rooms">
+  <h2>Private Rooms</h2>
+
+  <form class="room-entry" action="join-room" method="POST">
+    <span>UVCE1</span>
+    <input type="hidden" name="roomId" value="UVCE1" />
+    <input type="hidden" name="userName" value="<%= userName %>" />
+    <input type="hidden" name="sprite" id="sprite-private-1" value="1" />
+    <button type="submit">JOIN</button>
+  </form>
+
+  <form class="room-entry" action="join-room" method="POST">
+    <span>UVCE2</span>
+    <input type="hidden" name="roomId" value="UVCE2" />
+    <input type="hidden" name="userName" value="<%= userName %>" />
+    <input type="hidden" name="sprite" id="sprite-private-2" value="1" />
+    <button type="submit">JOIN</button>
+  </form>
+
+  <form class="room-entry" action="join-room" method="POST">
+    <span>IPL</span>
+    <input type="hidden" name="roomId" value="IPL" />
+    <input type="hidden" name="userName" value="<%= userName %>" />
+    <input type="hidden" name="sprite" id="sprite-private-3" value="1" />
+    <button type="submit">JOIN</button>
+  </form>
+</div>
+
     </div>
+  </div>
 
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="/js/home.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/home.js"></script>
 
-    <script>
-     let currentImage = 1;
-const totalImages = 10;
-const profileImage = document.getElementById("profile-image");
-const arrowLeft = document.getElementById("arrow-left");
-const arrowRight = document.getElementById("arrow-right");
+  <script>
+    let currentImage = 1;
+    const totalImages = 10;
+    const profileImage = document.getElementById("profile-image");
+    const arrowLeft = document.getElementById("arrow-left");
+    const arrowRight = document.getElementById("arrow-right");
+    const spriteInputCreate = document.getElementById("sprite-input-create");
+    const spriteInputJoin = document.getElementById("sprite-input-join");
 
+    function updateImage() {
+      profileImage.src = `/assets/character_logo/${currentImage}.png`;
+    }
 
-const spriteInputCreate = document.getElementById("sprite-input-create");
-const spriteInputJoin = document.getElementById("sprite-input-join");
+    function updateSpriteInputs() {
+      spriteInputCreate.value = currentImage;
+      spriteInputJoin.value = currentImage;
+    }
 
-function updateImage() {
-  profileImage.src = `/assets/character_logo/${currentImage}.png`;
-}
+    arrowLeft.addEventListener("click", () => {
+      currentImage = currentImage > 1 ? currentImage - 1 : totalImages;
+      updateImage();
+      updateSpriteInputs();
+    });
 
-function updateSpriteInputs() {
- 
-  if(spriteInputCreate) {
-    spriteInputCreate.value = currentImage;
-    spriteInputCreate.setAttribute("value", currentImage);
-  }
-  if(spriteInputJoin) {
-    spriteInputJoin.value = currentImage;
-    spriteInputJoin.setAttribute("value", currentImage);
-  }
-}
-
-arrowLeft.addEventListener("click", () => {
-  currentImage = currentImage > 1 ? currentImage - 1 : totalImages;
-  updateImage();
-  updateSpriteInputs();
-});
-
-arrowRight.addEventListener("click", () => {
-  currentImage = currentImage < totalImages ? currentImage + 1 : 1;
-  updateImage();
-  updateSpriteInputs();
-});
-
-    </script>
-  </body>
+    arrowRight.addEventListener("click", () => {
+      currentImage = currentImage < totalImages ? currentImage + 1 : 1;
+      updateImage();
+      updateSpriteInputs();
+    });
+  </script>
+</body>
 </html>

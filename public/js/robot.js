@@ -24,5 +24,5 @@ setTimeout(() => {
       textToSpeech(text3);
     });
   });
-}, 4000);
+}, 2000);
 
