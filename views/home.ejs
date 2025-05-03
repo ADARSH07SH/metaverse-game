@@ -47,7 +47,7 @@
     <span>UVCE1</span>
     <input type="hidden" name="roomId" value="UVCE1" />
     <input type="hidden" name="userName" value="<%= userName %>" />
-    <input type="hidden" name="sprite" id="sprite-private-1" value="1" />
+      <input type="hidden" name="sprite" id="sprite-input-join1" value="1" />
     <button type="submit">JOIN</button>
   </form>
 
@@ -55,7 +55,7 @@
     <span>UVCE2</span>
     <input type="hidden" name="roomId" value="UVCE2" />
     <input type="hidden" name="userName" value="<%= userName %>" />
-    <input type="hidden" name="sprite" id="sprite-private-2" value="1" />
+     <input type="hidden" name="sprite" id="sprite-input-join2" value="1" />
     <button type="submit">JOIN</button>
   </form>
 
@@ -63,7 +63,7 @@
     <span>IPL</span>
     <input type="hidden" name="roomId" value="IPL" />
     <input type="hidden" name="userName" value="<%= userName %>" />
-    <input type="hidden" name="sprite" id="sprite-private-3" value="1" />
+      <input type="hidden" name="sprite" id="sprite-input-join3" value="1" />
     <button type="submit">JOIN</button>
   </form>
 </div>
@@ -82,6 +82,9 @@
     const arrowRight = document.getElementById("arrow-right");
     const spriteInputCreate = document.getElementById("sprite-input-create");
     const spriteInputJoin = document.getElementById("sprite-input-join");
+    const spriteInputJoin1 = document.getElementById("sprite-input-join1");
+    const spriteInputJoin2 = document.getElementById("sprite-input-join2");
+    const spriteInputJoin3 = document.getElementById("sprite-input-join3");
 
     function updateImage() {
       profileImage.src = `/assets/character_logo/${currentImage}.png`;
@@ -90,6 +93,9 @@
     function updateSpriteInputs() {
       spriteInputCreate.value = currentImage;
       spriteInputJoin.value = currentImage;
+      spriteInputJoin1.value = currentImage;
+      spriteInputJoin2.value = currentImage;
+      spriteInputJoin3.value = currentImage;
     }
 
     arrowLeft.addEventListener("click", () => {
