@@ -26,6 +26,8 @@ chatButton.addEventListener("click", () => {
   playerChat = playerChatInput.value;
   //console.log(" Player Chat Input:", playerChat);
 
+
+  console.log("player chat input")
   if (playerChat.trim() !== "") {
     if (botActive != 1) {
       //console.log(" Sending chat to other players");
