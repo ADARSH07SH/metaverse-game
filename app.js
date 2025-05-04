@@ -15,7 +15,7 @@ const {
 } = require("./mongodb");
 
 const app = express();
-const PORT = process.env.PORT || 8080; // Use PORT from .env, default to 8080
+const PORT = process.env.PORT || 8080; 
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: { origin: "*", methods: ["GET", "POST"] },
@@ -542,11 +542,11 @@ app.post("/ask", async (req, res) => {
       }
     );
     const botReply =
-      response.data[0]?.generated_text || "Bot had nothing to say 😅";
+      response.data[0]?.generated_text || "Bot had nothing to say ";
     res.json({ reply: botReply });
   } catch (err) {
     console.error("BOT ERR:", err.message);
-    res.status(500).json({ reply: "Bot is sleeping rn 🥱" });
+    res.status(500).json({ reply: "Bot is sleeping rn " });
   }
 });
 

@@ -327,7 +327,7 @@
               li.classList.add("active-player");
 
               const callBtn = document.createElement("button");
-              // callBtn.textContent = " 📞";
+              // callBtn.textContent = " ";
               callBtn.title = `Call ${player.userName}`;
               callBtn.addEventListener("click", () => {
                 initiatePrivateCall(player.socketId, player.userName);

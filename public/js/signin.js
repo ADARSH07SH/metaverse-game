@@ -65,7 +65,7 @@ function handleFormSubmit(form, url) {
   };
 }
 
-// Add event listeners to forms
+
 document
   .querySelector(".login-form")
   .addEventListener(
@@ -80,7 +80,7 @@ document
     handleFormSubmit(document.querySelector(".signin-form"), "/register")
   );
 
-// Close modal handlers
+
 closeBtn.addEventListener("click", () => {
   errorModal.style.display = "none";
 });
