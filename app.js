@@ -529,7 +529,7 @@ app.post("/ask", async (req, res) => {
       {
         inputs: prompt,
         parameters: {
-          max_new_tokens: 20,
+          max_new_tokens: 10,
           temperature: 0.7,
           top_p: 0.9,
           repetition_penalty: 1.2,
