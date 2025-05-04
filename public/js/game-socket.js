@@ -41,7 +41,7 @@ chatButton.addEventListener("click", () => {
 
     if (botActive == 1) {
       //console.log(" Sending chat to bot");
-      fetch("https://metaverse-game.onrender.com/ask", {
+      fetch("http://localhost:8080/ask", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
