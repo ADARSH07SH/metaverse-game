@@ -288,7 +288,7 @@ footer {
   .chatbox {
     width: 30%;
     height: 30%;
-    transform: translateX(-130%);
+  
     bottom: 10%;
     padding: 10px;
   }
