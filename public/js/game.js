@@ -118,6 +118,7 @@ function createNameLabel(scene, name, x, y) {
 }
 
 function create() {
+    this.cameras.main.setBackgroundColor('#87ceeb');
   const chatInput = document.getElementById("player-chat");
 
   const codeEditor = document.getElementById("virtualEditorScreen");
