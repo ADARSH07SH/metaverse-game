@@ -40,7 +40,7 @@ chatButton.addEventListener("click", () => {
 
     if (botActive == 1) {
       console.log(" Sending chat to bot");
-      fetch("https://myapi.example.com/ask", {
+      fetch("https://metaverse-game.onrender.com/ask", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
