@@ -3382,7 +3382,7 @@
    * const socket = io();
    *
    * socket.on("connect", () => {
-   *   console.log("connected");
+   *   //console.log("connected");
    * });
    *
    * // send an event to the server
@@ -3394,7 +3394,7 @@
    *
    * // upon disconnection
    * socket.on("disconnect", (reason) => {
-   *   console.log(`disconnected due to ${reason}`);
+   *   //console.log(`disconnected due to ${reason}`);
    * });
    */
   var Socket = /*#__PURE__*/ (function (_Emitter) {
@@ -3414,11 +3414,11 @@
        * const socket = io();
        *
        * socket.on("connect", () => {
-       *   console.log(socket.connected); // true
+       *   //console.log(socket.connected); // true
        * });
        *
        * socket.on("disconnect", () => {
-       *   console.log(socket.connected); // false
+       *   //console.log(socket.connected); // false
        * });
        */
       _this.connected = false;
@@ -3466,11 +3466,11 @@
      * const socket = io();
      *
      * socket.on("connect", () => {
-     *   console.log(socket.disconnected); // false
+     *   //console.log(socket.disconnected); // false
      * });
      *
      * socket.on("disconnect", () => {
-     *   console.log(socket.disconnected); // true
+     *   //console.log(socket.disconnected); // true
      * });
      */
     _createClass(Socket, [
@@ -3503,15 +3503,15 @@
          * @example
          * const socket = io();
          *
-         * console.log(socket.active); // true
+         * //console.log(socket.active); // true
          *
          * socket.on("disconnect", (reason) => {
          *   if (reason === "io server disconnect") {
          *     // the disconnection was initiated by the server, you need to manually reconnect
-         *     console.log(socket.active); // false
+         *     //console.log(socket.active); // false
          *   }
          *   // else the socket will automatically try to reconnect
-         *   console.log(socket.active); // true
+         *   //console.log(socket.active); // true
          * });
          */
       },
@@ -4123,7 +4123,7 @@
          * const socket = io();
          *
          * socket.on("disconnect", (reason) => {
-         *   // console.log(reason); prints "io client disconnect"
+         *   // //console.log(reason); prints "io client disconnect"
          * });
          *
          * socket.disconnect();
@@ -4216,7 +4216,7 @@
          *
          * @example
          * socket.onAny((event, ...args) => {
-         *   console.log(`got ${event}`);
+         *   //console.log(`got ${event}`);
          * });
          *
          * @param listener
@@ -4235,7 +4235,7 @@
          *
          * @example
          * socket.prependAny((event, ...args) => {
-         *   console.log(`got event ${event}`);
+         *   //console.log(`got event ${event}`);
          * });
          *
          * @param listener
@@ -4253,7 +4253,7 @@
          *
          * @example
          * const catchAllListener = (event, ...args) => {
-         *   console.log(`got event ${event}`);
+         *   //console.log(`got event ${event}`);
          * }
          *
          * socket.onAny(catchAllListener);
@@ -4304,7 +4304,7 @@
          *
          * @example
          * socket.onAnyOutgoing((event, ...args) => {
-         *   console.log(`sent event ${event}`);
+         *   //console.log(`sent event ${event}`);
          * });
          *
          * @param listener
@@ -4325,7 +4325,7 @@
          *
          * @example
          * socket.prependAnyOutgoing((event, ...args) => {
-         *   console.log(`sent event ${event}`);
+         *   //console.log(`sent event ${event}`);
          * });
          *
          * @param listener
@@ -4343,7 +4343,7 @@
          *
          * @example
          * const catchAllListener = (event, ...args) => {
-         *   console.log(`sent event ${event}`);
+         *   //console.log(`sent event ${event}`);
          * }
          *
          * socket.onAnyOutgoing(catchAllListener);

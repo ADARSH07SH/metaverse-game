@@ -1,3 +1,4 @@
+require("dotenv").config(); // Load environment variables from .env file
 
 const express = require("express");
 const ejsMate = require("ejs-mate");
@@ -11,11 +12,10 @@ const {
   getRoomDetailsCollection,
   playerChat,
   getConferenceParticipants,
-} = require("./public/js/mongodb");
-
+} = require("./mongodb");
 
 const app = express();
-const PORT = 8080;
+const PORT = process.env.PORT || 8080; // Use PORT from .env, default to 8080
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: { origin: "*", methods: ["GET", "POST"] },
@@ -24,7 +24,6 @@ io.setMaxListeners(20);
 const axios = require("axios");
 
 const cors = require("cors");
-
 
 app.use(cors());
 app.use(express.json());
@@ -36,16 +35,11 @@ app.use(express.static(path.join(__dirname, "public")));
 inject();
 app.use("/assets", express.static(path.join(__dirname, "public/assets")));
 
-
 const players = {};
-
-
-
 
 io.on("connection", (socket) => {
   console.log(`Socket connected: ${socket.id}`);
 
-  
   socket.on("createRoom", async (roomId) => {
     const roomCollection = await getRoomDetailsCollection();
     const existingRoom = await roomCollection.findOne({ roomId });
@@ -76,14 +70,12 @@ io.on("connection", (socket) => {
         );
 
         if (existingPlayer) {
-          
           await roomCollection.updateOne(
             { roomId, "players.userName": userId },
             { $set: { "players.$.socketId": socket.id, "players.$.active": 1 } }
           );
           console.log(`Updated ${userId} in room ${roomId} with new socketId`);
         } else {
-          
           await roomCollection.updateOne(
             { roomId },
             {
@@ -105,13 +97,12 @@ io.on("connection", (socket) => {
   });
 
   socket.on("updatePosition", (data) => {
-    
     players[socket.id] = {
       x: data.x,
       y: data.y,
       spriteNum: data.spriteNum,
       playerName: data.playerName,
-      roomId:data.roomId
+      roomId: data.roomId,
     };
     socket.broadcast.emit("updatePosition", {
       id: socket.id,
@@ -119,11 +110,10 @@ io.on("connection", (socket) => {
       y: data.y,
       spriteNum: data.spriteNum,
       playerName: data.playerName,
-      roomId:data.roomId,
+      roomId: data.roomId,
     });
   });
 
-  
   socket.on("player-chat", async (data) => {
     console.log(`Chat from ${data.userId}: ${data.message}`);
     io.to(data.roomId).emit("player-chat", data);
@@ -132,7 +122,6 @@ io.on("connection", (socket) => {
     await saveChatMessage(data.roomId, socket.id, data.message, data.userId);
   });
 
-  
   socket.on("enterLobby", async (data) => {
     console.log(
       `Player ${data.userId} entered the lobby for room ${data.roomId}`
@@ -148,7 +137,6 @@ io.on("connection", (socket) => {
         );
 
         if (existing) {
-          
           await roomCollection.updateOne(
             { roomId: data.roomId, "players.userName": data.userId },
             { $set: { "players.$.socketId": socket.id, "players.$.active": 1 } }
@@ -157,7 +145,6 @@ io.on("connection", (socket) => {
             `Updated ${data.userId} in room ${data.roomId} (via lobby).`
           );
         } else {
-          
           await roomCollection.updateOne(
             { roomId: data.roomId },
             {
@@ -217,9 +204,8 @@ io.on("connection", (socket) => {
   });
 
   socket.on("exitcode", (data) => {
-    
     const targetSocketId = data.id;
-   
+
     io.to(targetSocketId).emit("exitcode1", {
       userId: data.userId,
     });
@@ -228,16 +214,15 @@ io.on("connection", (socket) => {
   socket.on("editor-change", ({ roomId, code }) => {
     console.log(code);
     console.log(roomId);
-    
-    let res = socket.broadcast.emit("editor-update", { roomId, code });
-    
- });
 
- socket.on("join-editor-room", (roomId) => {
-   socket.join(roomId);
-   console.log(`${socket.id} joined editor room: ${roomId}`);
- });
-  
+    let res = socket.broadcast.emit("editor-update", { roomId, code });
+  });
+
+  socket.on("join-editor-room", (roomId) => {
+    socket.join(roomId);
+    console.log(`${socket.id} joined editor room: ${roomId}`);
+  });
+
   socket.on("offer", (data) => {
     if (!data.target) return;
     const targetSocket = io.sockets.sockets.get(data.target);
@@ -265,7 +250,6 @@ io.on("connection", (socket) => {
     }
   });
 
-
   socket.on("initiate-private-call", ({ to, from, callerName }) => {
     console.log(`${callerName} is calling ${to}`);
     io.to(to).emit("incoming-private-call", {
@@ -281,8 +265,7 @@ io.on("connection", (socket) => {
   socket.on("reject-private-call", ({ from, reason }) => {
     io.to(from).emit("call-rejected", { from: socket.id, reason });
   });
-  
-  
+
   socket.on("enterConference", async (data) => {
     console.log(
       `Player ${data.userId} with socket id ${data.id} entered the conference hall`
@@ -322,7 +305,6 @@ io.on("connection", (socket) => {
     }
   });
 
-  
   const handleDisconnect = async () => {
     console.log(`Socket disconnected: ${socket.id}`);
     const player = players[socket.id];
@@ -350,9 +332,6 @@ io.on("connection", (socket) => {
   socket.on("main-disconnect", handleDisconnect);
 });
 
-
-
-
 app.get("/", (req, res) => res.redirect("/login"));
 app.get("/login", (req, res) => res.render("signin.ejs"));
 
@@ -361,21 +340,28 @@ app.post("/login", async (req, res) => {
   const { userName, password } = req.body;
   try {
     if (!userName || !password) {
-      return res.status(400).json({ success: false, message: "All fields are required" });
+      return res
+        .status(400)
+        .json({ success: false, message: "All fields are required" });
     }
 
     const userDetails = await getUserDetailsCollection();
     const user = await userDetails.findOne({ userName });
-    
+
     if (!user) {
-      return res.status(400).json({ success: false, message: "User not found" });
+      return res
+        .status(400)
+        .json({ success: false, message: "User not found" });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (isMatch) {
-      return res.json({ success: true, redirect: `/joinroom?userName=${userName}` });
+      return res.json({
+        success: true,
+        redirect: `/joinroom?userName=${userName}`,
+      });
     }
-    
+
     res.status(400).json({ success: false, message: "Invalid credentials" });
   } catch (err) {
     console.error("Error during login:", err);
@@ -388,19 +374,23 @@ app.post("/register", async (req, res) => {
   const { userName, email, password } = req.body;
   try {
     if (!userName || !email || !password) {
-      return res.status(400).json({ success: false, message: "All fields are required" });
+      return res
+        .status(400)
+        .json({ success: false, message: "All fields are required" });
     }
 
     const userDetails = await getUserDetailsCollection();
     const existingUser = await userDetails.findOne({ userName });
-    
+
     if (existingUser) {
-      return res.status(400).json({ success: false, message: "Username already exists" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Username already exists" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
     await userDetails.insertOne({ userName, email, password: hashedPassword });
-    
+
     res.json({ success: true, redirect: `/joinroom?userName=${userName}` });
   } catch (err) {
     console.error("Error during registration:", err);
@@ -499,7 +489,6 @@ app.get("/api/get-players", async (req, res) => {
   }
 });
 
-
 async function saveChatMessage(roomId, socketId, message, userId) {
   const chatCollection = await playerChat();
   try {
@@ -540,7 +529,7 @@ app.post("/ask", async (req, res) => {
       {
         inputs: prompt,
         parameters: {
-          max_new_tokens: 10,
+          max_new_tokens: 20,
           temperature: 0.7,
           top_p: 0.9,
           repetition_penalty: 1.2,

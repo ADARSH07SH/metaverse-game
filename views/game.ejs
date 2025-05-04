@@ -8,12 +8,12 @@
     />
 
     <title>Game Overlay</title>
-    
+
     <link rel="stylesheet" href="/css/game.css" />
     <link rel="stylesheet" href="/css/video.css" />
     <link rel="stylesheet" href="/css/mobile.css" />
     <link rel="stylesheet" href="/css/codeEditor.css" />
-   
+
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
@@ -21,49 +21,45 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     />
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap" rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap"
+      rel="stylesheet"
+    />
 
     <script src="/js/codeEditor.js"></script>
-    
+
     <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.min.js"></script>
     <script src="https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexvirtualjoystickplugin.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
-    
     <script src="https://cdn.jsdelivr.net/npm/mediasoup-client/umd/mediasoupClient.min.js"></script>
-    <script>
-    
-     
-    </script>
+    <script></script>
 
-    
     <script src="/socket.io/socket.io.js"></script>
 
-    
     <script>
       const socket = io();
-      
     </script>
   </head>
   <body>
     <div id="game-container"></div>
     <div class="mobileMain"></div>
 
-    <div id="conferenceWindow" class="conference-window" style="display: none;">
-  <div class="conference-header">
-    <h2>Conference Meeting</h2>
-  </div>
-  <div class="video-grid" id="videoGrid">
-  <div id="remote-videos"></div>
-  <div class="local-video-container">
-    <video id="local-video" autoplay playsinline muted></video>
-    <div class="participant-name">You</div>
-    <div id="local-avatar" class="video-avatar"></div>
-  </div>
-</div>
-  <button id="exitConferenceBtn">Exit Conference</button>
-</div> 
-    
+    <div id="conferenceWindow" class="conference-window" style="display: none">
+      <div class="conference-header">
+        <h2>Conference Meeting</h2>
+      </div>
+      <div class="video-grid" id="videoGrid">
+        <div id="remote-videos"></div>
+        <div class="local-video-container">
+          <video id="local-video" autoplay playsinline muted></video>
+          <div class="participant-name">You</div>
+          <div id="local-avatar" class="video-avatar"></div>
+        </div>
+      </div>
+      <button id="exitConferenceBtn">Exit Conference</button>
+    </div>
+
     <div class="chatbox">
       <div class="chat">
         <input type="text" id="player-chat" name="playerChat" />
@@ -80,22 +76,28 @@
 
     <div id="version"></div>
 
-    <div id="imageOverlay" style="
-  display: none;
-  position: fixed;
-  top: 5%;
-  left:10%;
-  width: 80%;
-  height: 90%;
+    <div
+      id="imageOverlay"
+      style="
+        display: none;
+        position: fixed;
+        top: 5%;
+        left: 10%;
+        width: 80%;
+        height: 90%;
 
-  z-index: 9999;
-  justify-content: center;
-  align-items: center;
-">
-  <img src="/assets/main_assets/basic.png" alt="Overlay" style="max-width: 90%; max-height: 90%;">
-</div>
+        z-index: 9999;
+        justify-content: center;
+        align-items: center;
+      "
+    >
+      <img
+        src="/assets/main_assets/basic.png"
+        alt="Overlay"
+        style="max-width: 90%; max-height: 90%"
+      />
+    </div>
 
-    
     <div id="virtualEditorScreen" class="hidden">
       <div class="editor-header">
         <h3>Collab Editor</h3>
@@ -104,26 +106,27 @@
       <div id="editorContainer" style="height: 90%; width: 100%"></div>
     </div>
 
-<div id="notesEditor" class="notesEditor hidden">
+    <div id="notesEditor" class="notesEditor hidden">
+      <button
+        class="closeBtn"
+        onclick="document.getElementById('notesEditor').classList.add('hidden')"
+      >
+        ✖
+      </button>
 
- <button class="closeBtn" onclick="document.getElementById('notesEditor').classList.add('hidden')">✖</button>
+      <div id="notesContent" class="notesContent" contenteditable="true">
+        Start typing your notes here...
+      </div>
+    </div>
 
-  <div id="notesContent" class="notesContent" contenteditable="true">
-    Start typing your notes here...
-  </div>
-</div>
-
-    
     <div
       id="gamedata"
       data-room-id="<%= roomId %>"
       data-user-id="<%= userId %>"
     ></div>
 
-    
     <button id="showButton" style="display: none"></button>
 
-    
     <footer>
       <div class="acc">
         <div class="myinfo">
@@ -170,7 +173,7 @@
             <i class="fa-solid fa-terminal"></i>
           </div>
           <div class="notes">
-           <i class="fa-solid fa-note-sticky"></i>
+            <i class="fa-solid fa-note-sticky"></i>
           </div>
           <div class="info">
             <i class="fa-solid fa-mobile"></i>
@@ -185,17 +188,14 @@
       </div>
     </footer>
 
-    
     <script src="/js/game-socket.js"></script>
     <script src="/js/conference.js"></script>
     <script src="/js/mobile.js"></script>
     <script src="/js/game.js"></script>
     <script src="/js/robot.js"></script>
-  
-    
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
 
-    
     <script>
       let roomId = "<%= roomId %>";
       let userId = "<%= userId %>";
@@ -205,19 +205,14 @@
         const chatbox = document.querySelector(".chatbox");
         const chatInput = document.getElementById("player-chat");
 
-      
         if (!chatbox.contains(e.target)) {
           chatInput.blur();
         }
       });
 
       socket.emit("player position");
-      socket.on("connect", () => {
-       
-      });
-      socket.on("message", (data) => {
-      
-      });
+      socket.on("connect", () => {});
+      socket.on("message", (data) => {});
 
       function updateTime() {
         const now = new Date();
@@ -248,34 +243,27 @@
       const notes = document.querySelector(".notes");
       let notesicon = document.querySelector(".notes i");
 
-        const closeBtn = document.getElementById("closeEditorBtn");
-  const editorScreen = document.getElementById("virtualEditorScreen");
+      const closeBtn = document.getElementById("closeEditorBtn");
+      const editorScreen = document.getElementById("virtualEditorScreen");
 
       coding.addEventListener("click", function () {
-       
         codingicon.classList.toggle("activered");
         editorScreen.classList.toggle("hidden");
-        loadMonacoAndInit(currentRoomId||123456);
+        loadMonacoAndInit(currentRoomId || 123456);
       });
-
 
       notes.addEventListener("click", function () {
-       
         notesicon.classList.toggle("activered");
         notesEditor.classList.toggle("hidden");
-        
       });
-
 
       const othercontrols = document.querySelector(".othercontrols");
 
-othercontrols.addEventListener("click", function () {
-  const overlay = document.getElementById("imageOverlay");
-  overlay.style.display = overlay.style.display === "none" ? "flex" : "none";
-});
-
-
-
+      othercontrols.addEventListener("click", function () {
+        const overlay = document.getElementById("imageOverlay");
+        overlay.style.display =
+          overlay.style.display === "none" ? "flex" : "none";
+      });
 
       people.addEventListener("click", async function () {
         playersList.classList.toggle("hidden");
@@ -284,35 +272,35 @@ othercontrols.addEventListener("click", function () {
         }
       });
 
-     async function fetchActivePlayers() {
-  try {
-    const response = await fetch(`/api/get-players?roomId=${roomId}`);
-    const players = await response.json();
-    playersUl.innerHTML = "";
+      async function fetchActivePlayers() {
+        try {
+          const response = await fetch(`/api/get-players?roomId=${roomId}`);
+          const players = await response.json();
+          playersUl.innerHTML = "";
 
-    players
-      .filter(player => player.active === 1 && player.socketId !== socket.id)
-      .forEach(player => {
-        const li = document.createElement("li");
-        li.textContent = player.userName;
-        li.classList.add("active-player");
+          players
+            .filter(
+              (player) => player.active === 1 && player.socketId !== socket.id
+            )
+            .forEach((player) => {
+              const li = document.createElement("li");
+              li.textContent = player.userName;
+              li.classList.add("active-player");
 
-        
-        const callBtn = document.createElement("button");
-        // callBtn.textContent = " 📞";
-        callBtn.title = `Call ${player.userName}`;
-        callBtn.addEventListener("click", () => {
-          
-          initiatePrivateCall(player.socketId, player.userName);
-        });
+              const callBtn = document.createElement("button");
+              // callBtn.textContent = " 📞";
+              callBtn.title = `Call ${player.userName}`;
+              callBtn.addEventListener("click", () => {
+                initiatePrivateCall(player.socketId, player.userName);
+              });
 
-        li.appendChild(callBtn);
-        playersUl.appendChild(li);
-      });
-  } catch (error) {
-    console.error("Error fetching players:", error);
-  }
-}
+              li.appendChild(callBtn);
+              playersUl.appendChild(li);
+            });
+        } catch (error) {
+          //console.error("Error fetching players:", error);
+        }
+      }
 
       document.querySelector(".chat i").addEventListener("click", function () {
         document.querySelector(".chatbox").classList.toggle("hidden");
@@ -347,7 +335,6 @@ othercontrols.addEventListener("click", function () {
         }
       });
 
-     
       document.addEventListener("DOMContentLoaded", function () {
         const emojis = document.querySelectorAll(".emoji");
         emojis.forEach((emojiEl) => {

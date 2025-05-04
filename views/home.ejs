@@ -1,181 +1,215 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Metaverse Office</title>
-  <link rel="stylesheet" href="/css/home.css" />
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css"
-    integrity="sha512-5Hs3dF2AEPkpNAR7UiOHba+lRSJNeM2ECkwxUIxC1Q/FLycGTbNapWXB4tP889k5T5Ju8fs4b1P5z/iB4nMfSQ=="
-    crossorigin="anonymous"
-    referrerpolicy="no-referrer"
-  />
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Metaverse Office</title>
+    <link rel="stylesheet" href="/css/home.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css"
+      integrity="sha512-5Hs3dF2AEPkpNAR7UiOHba+lRSJNeM2ECkwxUIxC1Q/FLycGTbNapWXB4tP889k5T5Ju8fs4b1P5z/iB4nMfSQ=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+  </head>
+  <body>
     <div class="error-modal" id="errorModal">
-    <div class="modal-content">
-      <span class="close-btn">&times;</span>
-      <p id="errorMessage"></p>
-    </div>
-  </div>
-  <div class="container">
-    <div class="card">
-      <h3>Metaverse Office</h3>
-      <div class="userchar">
-        <i class="fa-solid fa-arrow-left" id="arrow-left"></i>
-        <img src="/assets/character_logo/1.png" class="profile-image" id="profile-image" alt="Logo" />
-        <i class="fa-solid fa-arrow-right" id="arrow-right"></i>
+      <div class="modal-content">
+        <span class="close-btn">&times;</span>
+        <p id="errorMessage"></p>
       </div>
-
-      <div class="room-forms">
-        <form class="create-room" action="create-room" method="POST">
-          <input type="text" placeholder="Room ID: (ASDF1234)" name="roomId" />
-          <input type="hidden" name="userName" value="<%= userName %>" />
-          <input type="hidden" name="sprite" id="sprite-input-create" value="1" />
-          <button type="submit">CREATE</button>
-        </form>
-
-        <form class="join-room" action="join-room" method="POST">
-          <input type="text" placeholder="Room ID: (ASDF1234)" name="roomId" />
-          <input type="hidden" name="userName" value="<%= userName %>" />
-          <input type="hidden" name="sprite" id="sprite-input-join" value="1" />
-          <button type="submit">JOIN</button>
-        </form>
-      </div>
-
-
-     <div class="private-rooms">
-  <h2>Private Rooms</h2>
-
-  <form class="room-entry" action="join-room" method="POST">
-    <span>UVCE1</span>
-    <input type="hidden" name="roomId" value="UVCE1" />
-    <input type="hidden" name="userName" value="<%= userName %>" />
-      <input type="hidden" name="sprite" id="sprite-input-join1" value="1" />
-    <button type="submit">JOIN</button>
-  </form>
-
-  <form class="room-entry" action="join-room" method="POST">
-    <span>UVCE2</span>
-    <input type="hidden" name="roomId" value="UVCE2" />
-    <input type="hidden" name="userName" value="<%= userName %>" />
-     <input type="hidden" name="sprite" id="sprite-input-join2" value="1" />
-    <button type="submit">JOIN</button>
-  </form>
-
-  <form class="room-entry" action="join-room" method="POST">
-    <span>IPL</span>
-    <input type="hidden" name="roomId" value="IPL" />
-    <input type="hidden" name="userName" value="<%= userName %>" />
-      <input type="hidden" name="sprite" id="sprite-input-join3" value="1" />
-    <button type="submit">JOIN</button>
-  </form>
-</div>
-
     </div>
-  </div>
+    <div class="container">
+      <div class="card">
+        <h3>Metaverse Office</h3>
+        <div class="userchar">
+          <i class="fa-solid fa-arrow-left" id="arrow-left"></i>
+          <img
+            src="/assets/character_logo/1.png"
+            class="profile-image"
+            id="profile-image"
+            alt="Logo"
+          />
+          <i class="fa-solid fa-arrow-right" id="arrow-right"></i>
+        </div>
 
-  <script src="/socket.io/socket.io.js"></script>
-  <script src="/js/home.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <div class="room-forms">
+          <form class="create-room" action="create-room" method="POST">
+            <input
+              type="text"
+              placeholder="Room ID: (ASDF1234)"
+              name="roomId"
+            />
+            <input type="hidden" name="userName" value="<%= userName %>" />
+            <input
+              type="hidden"
+              name="sprite"
+              id="sprite-input-create"
+              value="1"
+            />
+            <button type="submit">CREATE</button>
+          </form>
 
-  <script>
-    let currentImage = 1;
-    const totalImages = 10;
-    const profileImage = document.getElementById("profile-image");
-    const arrowLeft = document.getElementById("arrow-left");
-    const arrowRight = document.getElementById("arrow-right");
-    const spriteInputCreate = document.getElementById("sprite-input-create");
-    const spriteInputJoin = document.getElementById("sprite-input-join");
-    const spriteInputJoin1 = document.getElementById("sprite-input-join1");
-    const spriteInputJoin2 = document.getElementById("sprite-input-join2");
-    const spriteInputJoin3 = document.getElementById("sprite-input-join3");
+          <form class="join-room" action="join-room" method="POST">
+            <input
+              type="text"
+              placeholder="Room ID: (ASDF1234)"
+              name="roomId"
+            />
+            <input type="hidden" name="userName" value="<%= userName %>" />
+            <input
+              type="hidden"
+              name="sprite"
+              id="sprite-input-join"
+              value="1"
+            />
+            <button type="submit">JOIN</button>
+          </form>
+        </div>
 
-    function updateImage() {
-      profileImage.src = `/assets/character_logo/${currentImage}.png`;
-    }
+        <div class="private-rooms">
+          <h2>Private Rooms</h2>
 
-    function updateSpriteInputs() {
-      spriteInputCreate.value = currentImage;
-      spriteInputJoin.value = currentImage;
-      spriteInputJoin1.value = currentImage;
-      spriteInputJoin2.value = currentImage;
-      spriteInputJoin3.value = currentImage;
-    }
+          <form class="room-entry" action="join-room" method="POST">
+            <span>UVCE1</span>
+            <input type="hidden" name="roomId" value="UVCE1" />
+            <input type="hidden" name="userName" value="<%= userName %>" />
+            <input
+              type="hidden"
+              name="sprite"
+              id="sprite-input-join1"
+              value="1"
+            />
+            <button type="submit">JOIN</button>
+          </form>
 
-    arrowLeft.addEventListener("click", () => {
-      currentImage = currentImage > 1 ? currentImage - 1 : totalImages;
-      updateImage();
-      updateSpriteInputs();
-    });
+          <form class="room-entry" action="join-room" method="POST">
+            <span>UVCE2</span>
+            <input type="hidden" name="roomId" value="UVCE2" />
+            <input type="hidden" name="userName" value="<%= userName %>" />
+            <input
+              type="hidden"
+              name="sprite"
+              id="sprite-input-join2"
+              value="1"
+            />
+            <button type="submit">JOIN</button>
+          </form>
 
-    arrowRight.addEventListener("click", () => {
-      currentImage = currentImage < totalImages ? currentImage + 1 : 1;
-      updateImage();
-      updateSpriteInputs();
-    });
-    
+          <form class="room-entry" action="join-room" method="POST">
+            <span>IPL</span>
+            <input type="hidden" name="roomId" value="IPL" />
+            <input type="hidden" name="userName" value="<%= userName %>" />
+            <input
+              type="hidden"
+              name="sprite"
+              id="sprite-input-join3"
+              value="1"
+            />
+            <button type="submit">JOIN</button>
+          </form>
+        </div>
+      </div>
+    </div>
 
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/home.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-     const errorModal = document.getElementById("errorModal");
-    const errorMessage = document.getElementById("errorMessage");
-    const closeBtn = document.querySelector(".close-btn");
+    <script>
+      let currentImage = 1;
+      const totalImages = 10;
+      const profileImage = document.getElementById("profile-image");
+      const arrowLeft = document.getElementById("arrow-left");
+      const arrowRight = document.getElementById("arrow-right");
+      const spriteInputCreate = document.getElementById("sprite-input-create");
+      const spriteInputJoin = document.getElementById("sprite-input-join");
+      const spriteInputJoin1 = document.getElementById("sprite-input-join1");
+      const spriteInputJoin2 = document.getElementById("sprite-input-join2");
+      const spriteInputJoin3 = document.getElementById("sprite-input-join3");
 
-    function showError(message) {
-      errorMessage.textContent = message;
-      errorModal.style.display = "block";
-    }
-
-    closeBtn.addEventListener("click", () => {
-      errorModal.style.display = "none";
-    });
-
-    window.addEventListener("click", (e) => {
-      if (e.target === errorModal) {
-        errorModal.style.display = "none";
+      function updateImage() {
+        profileImage.src = `/assets/character_logo/${currentImage}.png`;
       }
-    });
 
-    // Form handling
-    document.querySelectorAll('form').forEach(form => {
-      form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const formData = new FormData(form);
-        const data = Object.fromEntries(formData.entries());
-        const roomId = data.roomId || form.querySelector('[name="roomId"]').value;
+      function updateSpriteInputs() {
+        spriteInputCreate.value = currentImage;
+        spriteInputJoin.value = currentImage;
+        spriteInputJoin1.value = currentImage;
+        spriteInputJoin2.value = currentImage;
+        spriteInputJoin3.value = currentImage;
+      }
 
-        // Client-side validation
-        if (!roomId.trim() && form.classList.contains('create-room')) {
-          showError("Please enter a Room ID!");
-          return;
-        }
+      arrowLeft.addEventListener("click", () => {
+        currentImage = currentImage > 1 ? currentImage - 1 : totalImages;
+        updateImage();
+        updateSpriteInputs();
+      });
 
-        try {
-          const response = await fetch(form.action, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({...data, roomId})
-          });
+      arrowRight.addEventListener("click", () => {
+        currentImage = currentImage < totalImages ? currentImage + 1 : 1;
+        updateImage();
+        updateSpriteInputs();
+      });
 
-          const result = await response.json();
-          
-          if (result.redirect) {
-            window.location.href = result.redirect;
-          } else {
-            showError(result.message || "Something went wrong");
-          }
-        } catch (err) {
-          console.error('Form submission error:', err);
-          showError("Network error. Please try again.");
+      const errorModal = document.getElementById("errorModal");
+      const errorMessage = document.getElementById("errorMessage");
+      const closeBtn = document.querySelector(".close-btn");
+
+      function showError(message) {
+        errorMessage.textContent = message;
+        errorModal.style.display = "block";
+      }
+
+      closeBtn.addEventListener("click", () => {
+        errorModal.style.display = "none";
+      });
+
+      window.addEventListener("click", (e) => {
+        if (e.target === errorModal) {
+          errorModal.style.display = "none";
         }
       });
-    });
-    
-  </script>
-</body>
+
+      // Form handling
+      document.querySelectorAll("form").forEach((form) => {
+        form.addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          const formData = new FormData(form);
+          const data = Object.fromEntries(formData.entries());
+          const roomId =
+            data.roomId || form.querySelector('[name="roomId"]').value;
+
+          // Client-side validation
+          if (!roomId.trim() && form.classList.contains("create-room")) {
+            showError("Please enter a Room ID!");
+            return;
+          }
+
+          try {
+            const response = await fetch(form.action, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ ...data, roomId }),
+            });
+
+            const result = await response.json();
+
+            if (result.redirect) {
+              window.location.href = result.redirect;
+            } else {
+              showError(result.message || "Something went wrong");
+            }
+          } catch (err) {
+            //console.error('Form submission error:', err);
+            showError("Network error. Please try again.");
+          }
+        });
+      });
+    </script>
+  </body>
 </html>

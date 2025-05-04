@@ -412,7 +412,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   );
 
-  console.log("✅ Conference module ready → use conference.enter() to join.");
+  
 });
 
 

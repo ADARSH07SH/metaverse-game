@@ -1,7 +1,7 @@
 let editor;
 let isMonacoLoaded = false;
 let currentRoomId = null;
-const lastCodeByRoom = {}; 
+const lastCodeByRoom = {};
 
 function loadMonacoAndInit(roomId) {
   currentRoomId = roomId;
@@ -33,26 +33,25 @@ function loadMonacoAndInit(roomId) {
 function initMonaco(roomId) {
   const container = document.getElementById("editorContainer");
   if (!container) {
-    console.error("Editor container not found!");
+    //console.error("Editor container not found!");
     return;
   }
 
   if (editor) return;
 
-   editor = monaco.editor.create(container, {
-     value: lastCodeByRoom[roomId] || "// Start typing code...\n", 
-     language: "javascript",
-     theme: "vs-dark",
-     automaticLayout: true,
-   });
+  editor = monaco.editor.create(container, {
+    value: lastCodeByRoom[roomId] || "// Start typing code...\n",
+    language: "javascript",
+    theme: "vs-dark",
+    automaticLayout: true,
+  });
 
   editor.onDidChangeModelContent(() => {
     const code = editor.getValue();
-    lastCodeByRoom[roomId] = code; 
-    if (inmycom == true){
-    console.log("mycode")
-    }
-    else {
+    lastCodeByRoom[roomId] = code;
+    if (inmycom == true) {
+      //console.log("mycode")
+    } else {
       socket.emit("editor-change", { roomId, code });
     }
   });
@@ -61,31 +60,30 @@ function initMonaco(roomId) {
   editor.focus();
 }
 
-
 window.addEventListener("DOMContentLoaded", () => {
   const closeBtn = document.getElementById("closeEditorBtn");
   const editorScreen = document.getElementById("virtualEditorScreen");
 
   if (!closeBtn || !editorScreen) {
-    console.error("Editor close button or screen not found.");
+    //console.error("Editor close button or screen not found.");
     return;
   }
 
   closeBtn.addEventListener("click", () => {
     editorScreen.classList.add("hidden");
-    
+
     if (editor) {
-      lastCodeByRoom[currentRoomId] = editor.getValue(); 
+      lastCodeByRoom[currentRoomId] = editor.getValue();
       editor.dispose();
       editor = null;
     }
   });
- let notes = document.getElementById("notesEditor");
+  let notes = document.getElementById("notesEditor");
 
   socket.on("entercode1", ({ userId, roomId }) => {
-    console.log("📥 entercode1 received for", userId, "room:", roomId);
+    //console.log("📥 entercode1 received for", userId, "room:", roomId);
     editorScreen.classList.remove("hidden");
-notes.classList.remove("hidden")
+    notes.classList.remove("hidden");
     setTimeout(() => {
       loadMonacoAndInit(roomId);
       editorScreen.focus();
@@ -93,14 +91,14 @@ notes.classList.remove("hidden")
   });
 
   socket.on("exitcode1", () => {
-    console.log("📤 exitcode1 received");
+    //console.log("📤 exitcode1 received");
     if (editor) {
-      lastCodeByRoom[currentRoomId] = editor.getValue(); 
+      lastCodeByRoom[currentRoomId] = editor.getValue();
       editor.dispose();
       editor = null;
     }
     editorScreen.classList.add("hidden");
-    notes.classList.add("hidden")
+    notes.classList.add("hidden");
     document.getElementById("game-container").focus();
   });
 
@@ -113,7 +111,7 @@ notes.classList.remove("hidden")
         const pos = editor.getPosition();
         editor.setValue(code);
         editor.setPosition(pos);
-        lastCodeByRoom[incomingRoomId] = code; 
+        lastCodeByRoom[incomingRoomId] = code;
       }
     }
   });

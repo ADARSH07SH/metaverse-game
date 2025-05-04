@@ -27,7 +27,6 @@ class Example extends Phaser.Scene {
       progressBar.clear();
       progressBar.fillStyle(0x00ff00, 0.7);
 
-      
       const barWidth = this.sys.game.config.width * 0.5;
       const barX = (this.sys.game.config.width - barWidth) / 2;
 
@@ -40,9 +39,9 @@ class Example extends Phaser.Scene {
 
       progressText.setText(`${Math.round(value * 100)}%`);
     });
-   
+
     this.load.image("sky", "/assets/minigame1/deepblue.png");
-    
+
     this.load.image("ball", "/assets/minigame1/ball.png");
   }
 
@@ -67,44 +66,42 @@ class Example extends Phaser.Scene {
 
 const mobileMain = document.querySelector(".mobileMain");
 document.addEventListener("DOMContentLoaded", () => {
-  let audio = new Audio(); 
+  let audio = new Audio();
   let isPlaying = false;
- const songs = {
-   "1.mp3": {
-     title: "Blinding Lights",
-     artist: "The Weeknd",
-     albumArt:
-       "https://upload.wikimedia.org/wikipedia/en/0/09/The_Weeknd_-_Blinding_Lights.png",
-   },
-   "2.mp3": {
-     title: "Alag Aasman",
-     artist: "Anuv Jain",
-     albumArt:
-       "https://upload.wikimedia.org/wikipedia/en/4/42/Anuv_Jain_-_Alag_Aasman.png",
-   },
-   "3.mp3": {
-     title: "Stay",
-     artist: "The Kid LAROI & Justin Bieber",
-     albumArt:
-       "https://upload.wikimedia.org/wikipedia/en/b/bd/The_Kid_Laroi_and_Justin_Bieber_-_Stay.png",
-   },
- };
+  const songs = {
+    "1.mp3": {
+      title: "Blinding Lights",
+      artist: "The Weeknd",
+      albumArt:
+        "https://upload.wikimedia.org/wikipedia/en/0/09/The_Weeknd_-_Blinding_Lights.png",
+    },
+    "2.mp3": {
+      title: "Alag Aasman",
+      artist: "Anuv Jain",
+      albumArt:
+        "https://upload.wikimedia.org/wikipedia/en/4/42/Anuv_Jain_-_Alag_Aasman.png",
+    },
+    "3.mp3": {
+      title: "Stay",
+      artist: "The Kid LAROI & Justin Bieber",
+      albumArt:
+        "https://upload.wikimedia.org/wikipedia/en/b/bd/The_Kid_Laroi_and_Justin_Bieber_-_Stay.png",
+    },
+  };
 
- function playAudio(file) {
-   const { title, artist, albumArt } = songs[file];
-   audio.src = `/assets/audio/${file}`;
-   audio.play();
-   isPlaying = true;
-   playBtn.innerHTML = "❚❚";
+  function playAudio(file) {
+    const { title, artist, albumArt } = songs[file];
+    audio.src = `/assets/audio/${file}`;
+    audio.play();
+    isPlaying = true;
+    playBtn.innerHTML = "❚❚";
 
-   
-   spotifyOverlay.querySelector(".song-title").textContent = title;
-   spotifyOverlay.querySelector(".artist").textContent = artist;
-   spotifyOverlay.querySelector(
-     ".album-art"
-   ).style.backgroundImage = `url('${albumArt}')`;
- }
-
+    spotifyOverlay.querySelector(".song-title").textContent = title;
+    spotifyOverlay.querySelector(".artist").textContent = artist;
+    spotifyOverlay.querySelector(
+      ".album-art"
+    ).style.backgroundImage = `url('${albumArt}')`;
+  }
 
   if (mobileMain) {
     const phoneFrame = document.createElement("div");
@@ -161,14 +158,14 @@ document.addEventListener("DOMContentLoaded", () => {
     `;
     mobileMain.appendChild(gameOverlay1);
     mobileMain.appendChild(spotifyOverlay);
-       const songList = spotifyOverlay.querySelector(".song-list");
-       Object.entries(songs).forEach(([filename, song]) => {
-         const btn = document.createElement("button");
-         btn.className = "song-btn";
-         btn.dataset.song = filename;
-         btn.textContent = song.title;
-         songList.appendChild(btn);
-       });
+    const songList = spotifyOverlay.querySelector(".song-list");
+    Object.entries(songs).forEach(([filename, song]) => {
+      const btn = document.createElement("button");
+      btn.className = "song-btn";
+      btn.dataset.song = filename;
+      btn.textContent = song.title;
+      songList.appendChild(btn);
+    });
 
     const updateTime = () => {
       const now = new Date();
@@ -183,31 +180,28 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const spotifyApp = phoneFrame.querySelector("#spotify-app");
 
-
-
     const gamebtn1 = phoneFrame.querySelector("#gamebtn1");
 
-  
-   gamebtn1.addEventListener("click", () => {
-     game101 = game101 === 0 ? 101 : 0;
-     const gameHidden = gameOverlay1.style.display === "none";
-     gameOverlay1.style.display = gameHidden ? "block" : "none";
+    gamebtn1.addEventListener("click", () => {
+      game101 = game101 === 0 ? 101 : 0;
+      const gameHidden = gameOverlay1.style.display === "none";
+      gameOverlay1.style.display = gameHidden ? "block" : "none";
 
-     if (gameHidden && !phaserGame) {
-       const config = {
-         type: Phaser.AUTO,
-         width:280,
-         height: 390,
-         parent: gameOverlay1, 
-         scene: Example,
-       };
-       phaserGame = new Phaser.Game(config);
-     } else if (!gameHidden && phaserGame) {
-       phaserGame.destroy(true);
-       phaserGame = null;
-       gameContainer.innerHTML = ""; 
-     }
-   });
+      if (gameHidden && !phaserGame) {
+        const config = {
+          type: Phaser.AUTO,
+          width: 280,
+          height: 390,
+          parent: gameOverlay1,
+          scene: Example,
+        };
+        phaserGame = new Phaser.Game(config);
+      } else if (!gameHidden && phaserGame) {
+        phaserGame.destroy(true);
+        phaserGame = null;
+        gameContainer.innerHTML = "";
+      }
+    });
 
     spotifyApp.addEventListener("click", () => {
       const isHidden = spotifyOverlay.style.display === "none";
@@ -235,20 +229,19 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
 
-function playAudio(file) {
-  const { title, artist, albumArt } = songs[file];
-  audio.src = `/assets/audio/${file}`;
-  audio.play();
-  isPlaying = true;
-  playBtn.innerHTML = "❚❚";
+    function playAudio(file) {
+      const { title, artist, albumArt } = songs[file];
+      audio.src = `/assets/audio/${file}`;
+      audio.play();
+      isPlaying = true;
+      playBtn.innerHTML = "❚❚";
 
-  
-  spotifyOverlay.querySelector(".song-title").textContent = title;
-  spotifyOverlay.querySelector(".artist").textContent = artist;
-  spotifyOverlay.querySelector(
-    ".album-art"
-  ).style.backgroundImage = `url('${albumArt}')`;
-}
+      spotifyOverlay.querySelector(".song-title").textContent = title;
+      spotifyOverlay.querySelector(".artist").textContent = artist;
+      spotifyOverlay.querySelector(
+        ".album-art"
+      ).style.backgroundImage = `url('${albumArt}')`;
+    }
 
     function stopAudio() {
       audio.pause();
@@ -259,19 +252,17 @@ function playAudio(file) {
   }
 });
 
-
-
 mobileMain.style.display = "none";
 const infoIcon = document.querySelector(".info i");
 
 socket.on("entercafe1", () => {
-  console.log("enter");
+  //console.log("enter");
   mobileMain.classList.add("active");
-  if (infoIcon) infoIcon.style.color = "red"; 
+  if (infoIcon) infoIcon.style.color = "red";
 });
 
 socket.on("exitcafe1", () => {
-  console.log("exit");
+  //console.log("exit");
   mobileMain.classList.remove("active");
-  if (infoIcon) infoIcon.style.color = ""; 
+  if (infoIcon) infoIcon.style.color = "";
 });
