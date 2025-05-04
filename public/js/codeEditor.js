@@ -33,7 +33,7 @@ function loadMonacoAndInit(roomId) {
 function initMonaco(roomId) {
   const container = document.getElementById("editorContainer");
   if (!container) {
-    //console.error("Editor container not found!");
+    console.error("Editor container not found!");
     return;
   }
 
@@ -50,7 +50,7 @@ function initMonaco(roomId) {
     const code = editor.getValue();
     lastCodeByRoom[roomId] = code;
     if (inmycom == true) {
-      //console.log("mycode")
+      console.log("mycode");
     } else {
       socket.emit("editor-change", { roomId, code });
     }
@@ -65,7 +65,7 @@ window.addEventListener("DOMContentLoaded", () => {
   const editorScreen = document.getElementById("virtualEditorScreen");
 
   if (!closeBtn || !editorScreen) {
-    //console.error("Editor close button or screen not found.");
+    console.error("Editor close button or screen not found.");
     return;
   }
 
@@ -81,7 +81,7 @@ window.addEventListener("DOMContentLoaded", () => {
   let notes = document.getElementById("notesEditor");
 
   socket.on("entercode1", ({ userId, roomId }) => {
-    //console.log("📥 entercode1 received for", userId, "room:", roomId);
+    console.log("📥 entercode1 received for", userId, "room:", roomId);
     editorScreen.classList.remove("hidden");
     notes.classList.remove("hidden");
     setTimeout(() => {
@@ -91,7 +91,7 @@ window.addEventListener("DOMContentLoaded", () => {
   });
 
   socket.on("exitcode1", () => {
-    //console.log("📤 exitcode1 received");
+    console.log("📤 exitcode1 received");
     if (editor) {
       lastCodeByRoom[currentRoomId] = editor.getValue();
       editor.dispose();

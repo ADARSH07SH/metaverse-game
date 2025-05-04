@@ -256,13 +256,13 @@ mobileMain.style.display = "none";
 const infoIcon = document.querySelector(".info i");
 
 socket.on("entercafe1", () => {
-  //console.log("enter");
+  console.log("enter");
   mobileMain.classList.add("active");
   if (infoIcon) infoIcon.style.color = "red";
 });
 
 socket.on("exitcafe1", () => {
-  //console.log("exit");
+  console.log("exit");
   mobileMain.classList.remove("active");
   if (infoIcon) infoIcon.style.color = "";
 });

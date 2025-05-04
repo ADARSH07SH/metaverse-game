@@ -11,7 +11,7 @@ const getUserDetailsCollection = async () => {
     const userDetails = await client.db(dbName).collection("userId");
     return userDetails;
   } catch (err) {
-    //console.error(`error connecting to database :${err}`);
+    console.error(`error connecting to database :${err}`);
   }
 };
 
@@ -21,7 +21,7 @@ const getRoomDetailsCollection = async () => {
     const roomDetails = await client.db(dbName).collection("roomId");
     return roomDetails;
   } catch (err) {
-    //console.error(`error connecting to database :${err}`);
+    console.error(`error connecting to database :${err}`);
   }
 };
 
@@ -31,7 +31,7 @@ const playerChat = async () => {
     const roomDetails = await client.db(dbName).collection("chat");
     return roomDetails;
   } catch (err) {
-    //console.error(`error connecting to database :${err}`);
+    console.error(`error connecting to database :${err}`);
   }
 };
 
@@ -48,7 +48,7 @@ const getConferenceParticipants = async (roomId) => {
     }
     return [];
   } catch (err) {
-    //console.error("Error retrieving conference participants:", err);
+    console.error("Error retrieving conference participants:", err);
     return [];
   }
 };

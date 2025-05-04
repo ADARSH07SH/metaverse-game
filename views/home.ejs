@@ -205,7 +205,7 @@
               showError(result.message || "Something went wrong");
             }
           } catch (err) {
-            //console.error('Form submission error:', err);
+            console.error("Form submission error:", err);
             showError("Network error. Please try again.");
           }
         });

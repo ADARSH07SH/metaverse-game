@@ -558,7 +558,7 @@ function update(time) {
     ) {
       if (!inConferenceHall) {
         inConferenceHall = true;
-        //console.log("Entered Conference Hall");
+        console.log("Entered Conference Hall");
         conference.enter();
         socket.emit("enterConference", { roomId, id: socket.id, userId });
       }
@@ -567,7 +567,7 @@ function update(time) {
         inConferenceHall = false;
         document;
 
-        //console.log("Exited Conference Hall");
+        console.log("Exited Conference Hall");
         conference.exit();
         socket.emit("exitConference", { roomId, id: socket.id, userId });
       }
@@ -578,14 +578,14 @@ function update(time) {
     if (Phaser.Geom.Rectangle.Contains(lobbyRegion, player.x, player.y)) {
       if (!inLobby) {
         inLobby = true;
-        //console.log("Entered Lobby");
+        console.log("Entered Lobby");
 
         socket.emit("enterLobby", { roomId, id: socket.id, userId });
       }
     } else {
       if (inLobby) {
         inLobby = false;
-        //console.log("Exited Lobby");
+        console.log("Exited Lobby");
 
         socket.emit("exitLobby", { roomId, id: socket.id, userId });
       }
@@ -649,12 +649,12 @@ function update(time) {
 
   if (currentlyInFridge && !inFridge) {
     inFridge = true;
-    //console.log("Entered a fridge area");
+    console.log("Entered a fridge area");
     fridgeSound.play();
     handleFridgeInteraction();
   } else if (!currentlyInFridge && inFridge) {
     inFridge = false;
-    //console.log("Exited fridge area");
+    console.log("Exited fridge area");
   }
 
   let closestChairTile = null;
@@ -803,7 +803,7 @@ function update(time) {
     );
     if (distance <= PROXIMITY_THRESHOLD) {
       if (!callCooldown[id] && !activeCalls[id]) {
-        //console.log(`Near player: ${id}`);
+        console.log(`Near player: ${id}`);
         callCooldown[id] = true;
         setTimeout(() => {
           activeCalls[id] = true;
@@ -811,7 +811,7 @@ function update(time) {
         }, CALL_DELAY);
       }
     } else if (activeCalls[id]) {
-      //console.log(`Moving away from player: ${id}`);
+      console.log(`Moving away from player: ${id}`);
       if (distance > PROXIMITY_THRESHOLD + 20) {
         delete activeCalls[id];
       } else {
@@ -858,5 +858,5 @@ function closeGame() {
 }
 
 function handleFridgeInteraction() {
-  //console.log("Fridge function called!");
+  console.log("Fridge function called!");
 }

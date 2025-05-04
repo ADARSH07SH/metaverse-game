@@ -24,13 +24,12 @@ socket.on("player-chat", (data) => {
 
 chatButton.addEventListener("click", () => {
   playerChat = playerChatInput.value;
-  //console.log(" Player Chat Input:", playerChat);
+  console.log(" Player Chat Input:", playerChat);
 
-
-  console.log("player chat input")
+  console.log("player chat input");
   if (playerChat.trim() !== "") {
     if (botActive != 1) {
-      //console.log(" Sending chat to other players");
+      console.log(" Sending chat to other players");
       socket.emit("player-chat", {
         roomId,
         socketId: socket.id,
@@ -40,7 +39,7 @@ chatButton.addEventListener("click", () => {
     }
 
     if (botActive == 1) {
-      //console.log(" Sending chat to bot");
+      console.log(" Sending chat to bot");
       fetch("http://localhost:8080/ask", {
         method: "POST",
         headers: {
@@ -82,5 +81,5 @@ let aiBtn = document.getElementById("AI");
 aiBtn.addEventListener("click", async () => {
   botActive = botActive === 0 ? 1 : 0;
   aiBtn.classList.toggle("active");
-  //console.log(" Bot mode:", botActive);
+  console.log(" Bot mode:", botActive);
 });
