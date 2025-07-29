@@ -520,32 +520,45 @@ app.get("/api/conference-participants", async (req, res) => {
   }
 });
 
-const { OpenAI } = require("openai");
+const OpenAI = require("openai");
+
 
 const client = new OpenAI({
   baseURL: "https://router.huggingface.co/v1",
-  apiKey: process.env.HF_TOKEN, 
+  apiKey: process.env.HF_TOKEN,
 });
+
 
 app.post("/ask", async (req, res) => {
   const { prompt } = req.body;
+  console.log("HUGAI:", process.env.HUGAI);
 
   try {
     const chatCompletion = await client.chat.completions.create({
-      model: "meta-llama/Llama-3-8B-Instruct", // A much faster model
-      messages: [{ role: "user", content: prompt }],
-      max_tokens: 150,
+      model: "Qwen/Qwen3-Coder-480B-A35B-Instruct:novita", 
+      messages: [
+        {
+          role: "user",
+          content: prompt,
+        },
+      ],
     });
 
     const botReply =
-      chatCompletion.choices[0].message.content || "Bot had nothing to say 😅";
+      chatCompletion.choices[0]?.message?.content ||
+      "Bot had nothing to say 😅";
     res.json({ reply: botReply });
   } catch (err) {
-    console.error("BOT API ERR:", err.message);
-    res.status(500).json({ reply: "Bot is sleeping right now..." });
+    console.error(" BOT ERR:");
+    if (err instanceof OpenAI.APIError) {
+      console.error("Status:", err.status);
+      console.error("Message:", err.message);
+    } else {
+      console.error("Error:", err.message);
+    }
+    res.status(500).json({ reply: "Bot is sleeping rn " });
   }
 });
-
 
 httpServer.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}/`);

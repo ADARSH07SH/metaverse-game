@@ -1,17 +1,19 @@
 const gameContainer = document.getElementById("gamedata");
-const roomId = gameContainer.getAttribute("data-room-id");
-const userId = gameContainer.getAttribute("data-user-id");
+roomId = gameContainer.getAttribute("data-room-id");
+userId = gameContainer.getAttribute("data-user-id");
 const chatButton = document.querySelector(".player-chat-submit");
 const playerChatInput = document.getElementById("player-chat");
 const chatMessages = document.getElementById("chat-messages");
 let botActive = 0;
+let playerChat = "";
+let botText;
 
 function scrollChatToBottom() {
   chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
 socket.on("player-chat", (data) => {
-  if (data.roomId === roomId) {
+  if (data.roomId == roomId) {
     const messageDiv = document.createElement("div");
     messageDiv.classList.add("chat-message");
     messageDiv.innerHTML = `<strong>${data.userId}</strong>: ${data.message}`;
@@ -21,42 +23,49 @@ socket.on("player-chat", (data) => {
 });
 
 chatButton.addEventListener("click", () => {
-  const playerChat = playerChatInput.value;
-  if (playerChat.trim() === "") return;
+  playerChat = playerChatInput.value;
+  console.log(" Player Chat Input:", playerChat);
 
-  if (botActive !== 1) {
-    socket.emit("player-chat", {
-      roomId,
-      socketId: socket.id,
-      message: playerChat,
-      userId: userId,
-    });
-  } else {
-    const tempBotMessage = document.createElement("div");
-    tempBotMessage.classList.add("chat-message");
-    tempBotMessage.innerHTML = `<strong>Bot</strong>: is typing...`;
-    chatMessages.appendChild(tempBotMessage);
-    scrollChatToBottom();
-
-    fetch("https://metaverse-game.onrender.com/ask", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt: playerChat }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        tempBotMessage.innerHTML = `<strong>Bot</strong>: ${data.reply}`;
-        scrollChatToBottom();
-        textToSpeech(data.reply);
-      })
-      .catch((err) => {
-        tempBotMessage.innerHTML = `<strong>Bot</strong>: Error, please try again.`;
-        console.error("Bot Error:", err);
+  console.log("player chat input");
+  if (playerChat.trim() !== "") {
+    if (botActive != 1) {
+      console.log(" Sending chat to other players");
+      socket.emit("player-chat", {
+        roomId,
+        socketId: socket.id,
+        message: playerChat,
+        userId: userId,
       });
-  }
+    }
 
-  playerChatInput.value = "";
-  playerChatInput.focus();
+    if (botActive == 1) {
+      //console.log(" Sending chat to bot");
+      fetch("https://metaverse-game.onrender.com/ask", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ prompt: playerChat }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          const botReply = data.reply;
+          console.log("Bot replied:", botReply);
+          const botDiv = document.createElement("div");
+          botDiv.classList.add("chat-message");
+          botDiv.innerHTML = `<strong>Bot</strong>: ${botReply}`;
+          chatMessages.appendChild(botDiv);
+          scrollChatToBottom();
+          textToSpeech(botReply);
+        })
+        .catch((err) => {
+          console.error(" Bot Error:", err);
+        });
+    }
+
+    playerChatInput.value = "";
+    playerChatInput.focus();
+  }
 });
 
 document.querySelector(".chat i").addEventListener("click", scrollChatToBottom);
@@ -67,8 +76,10 @@ playerChatInput.addEventListener("keypress", (e) => {
   }
 });
 
-const aiBtn = document.getElementById("AI");
-aiBtn.addEventListener("click", () => {
+let aiBtn = document.getElementById("AI");
+
+aiBtn.addEventListener("click", async () => {
   botActive = botActive === 0 ? 1 : 0;
   aiBtn.classList.toggle("active");
+  console.log(" Bot mode:", botActive);
 });
