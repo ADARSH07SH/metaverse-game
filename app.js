@@ -15,7 +15,7 @@ const {
 } = require("./mongodb");
 
 const app = express();
-const PORT = process.env.PORT || 8080; 
+const PORT = process.env.PORT || 8080;
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: { origin: "*", methods: ["GET", "POST"] },
@@ -523,6 +523,7 @@ app.get("/api/conference-participants", async (req, res) => {
 app.post("/ask", async (req, res) => {
   const { prompt } = req.body;
 
+  console.log(`${process.env.HUGAI}`)
   try {
     const response = await axios.post(
       "https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-beta",
@@ -537,7 +538,7 @@ app.post("/ask", async (req, res) => {
       },
       {
         headers: {
-          Authorization: `Bearer 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`,
+          Authorization: `Bearer ${process.env.HUGAI}`,
         },
       }
     );
