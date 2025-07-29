@@ -537,7 +537,7 @@ app.post("/ask", async (req, res) => {
       },
       {
         headers: {
-          Authorization: `Bearer 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`,
+          Authorization: `Bearer ${process.env.HUGAI}`,
         },
       }
     );
