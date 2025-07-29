@@ -522,10 +522,11 @@ app.get("/api/conference-participants", async (req, res) => {
 
 app.post("/ask", async (req, res) => {
   const { prompt } = req.body;
+console.log("HUGAI:", process.env.HUGAI);
 
   try {
     const response = await axios.post(
-      "https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-beta",
+      "https://api-inference.huggingface.co/models/openai-community/gpt2",
       {
         inputs: prompt,
         parameters: {
