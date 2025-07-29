@@ -520,34 +520,44 @@ app.get("/api/conference-participants", async (req, res) => {
   }
 });
 
-app.post("/ask", async (req, res) => {
-  const { prompt } = req.body;
 
+
+async function getGpt2Completion(prompt) {
   try {
-    console.log(`${process.env.HUGAI}`)
     const response = await axios.post(
-      "https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-beta",
+      "https://api-inference.huggingface.co/models/openai-community/gpt2",
       {
         inputs: prompt,
         parameters: {
-          max_new_tokens: 10,
+          max_new_tokens: 30, 
           temperature: 0.7,
-          top_p: 0.9,
-          repetition_penalty: 1.2,
         },
       },
       {
         headers: {
           Authorization: `Bearer ${process.env.HUGAI}`,
+          "Content-Type": "application/json",
         },
       }
     );
-    const botReply =
-      response.data[0]?.generated_text || "Bot had nothing to say ";
-    res.json({ reply: botReply });
+
+    
+    const generated = response.data[0]?.generated_text || "No reply generated";
+    return generated;
   } catch (err) {
-    console.error("BOT ERR:", err.message);
-    res.status(500).json({ reply: "Bot is sleeping rn " });
+   
+    console.error("HF API error:", err.response?.data || err.message);
+    throw err;
+  }
+}
+
+app.post("/ask", async (req, res) => {
+  const { prompt } = req.body;
+  try {
+    const botReply = await getGpt2Completion(prompt);
+    res.json({ reply: botReply });
+  } catch {
+    res.status(500).json({ reply: "Bot is sleeping rn" });
   }
 });
 
