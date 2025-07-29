@@ -526,7 +526,7 @@ app.post("/ask", async (req, res) => {
   try {
     console.log(`${process.env.HUGAI}`)
     const response = await axios.post(
-      "https://api-inference.huggingface.co/models/gpt2",
+      "https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-beta",
       {
         inputs: prompt,
         parameters: {
